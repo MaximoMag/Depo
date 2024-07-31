@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Bienvenido {{user}}</title>
+        <label>Bienvenido {{user}}</label><br><hr>
+    </head>
+    <body>
+        <label for="{{cant_plantas}}">Cantidad de plantas: {{cant_plantas}}</label>
+        <label for="{{clones}}">Clones enraizando: {{clones}}</label>
+        <script src="static/script.js"></script>
+        <hr>
+        <form method="POST">
+                {% for espacio in espacios %}
+                <div id="{{espacio['Nombre']}}">
+                    <label for="{{espacio['ID']}}">{{espacio["Nombre"]}} :</label>
+                    <input type="checkbox" id="{{espacio['ID']}}" name="{{espacio['ID']}}" 
+                    onclick="checkOtherBoxes(document.getElementById(`{{espacio['ID']}}`),document.getElementById(`{{espacio['Nombre']}}`).children)">                    
+                    <button type="submit" value="{{espacio['ID']}}" name="log">Añadir Bitacora {{espacio["Nombre"]}}</button>
+                    {% for sube in espacio['Subespacios'] %}
+                        <div id="{{sube['Nombre']}}">
+                            <label for = "{{sube['ID']}}">{{sube["Nombre"]}}</label>
+                            <input type="checkbox" id= "{{sube['ID']}}" name = "{{sube['ID']}}"
+                            onclick="checkOtherBoxes(document.getElementById(`{{sube['ID']}}`),document.getElementById(`{{sube['Nombre']}}`).children)">
+                            <button type="submit" value="{{sube['ID']}}" name="log_s">Añadir Bitacora {{sube["Nombre"]}}</button>
+                            {% for planta in sube["Individuos"] %}
+                            <br>    
+                            <label for = "{{planta['ID']}}">{{planta['ID']}}: {{planta['Tam']}}</label>
+                                <input type="checkbox" id= "{{planta['ID']}}" name= "{{planta['ID']}}">
+                            {% endfor %}
+                        </div>
+                        <hr>
+                        {% endfor %}
+                </div><hr>
+                {% endfor %}
+                    </div>
+            <select name="mode">
+                <option name="Riego">Riego</option>
+                <option name="Pulerizacion" >Pulverizacion</option>
+                <option name="Tratamiento Plagas">Tratamiento Plagas</option>
+                <option name="Tratamiento Hongos">Tratamiento Hongos</option>
+                <option name="Poda">Poda</option>
+                <option name="Transplante">Transplante</option>
+                <option name="Bitacora">Bitacora</option>
+                <option name="Modificar">Modificar</option>
+            </select>
+            <input type="submit" value="Registrar actividad">
+        <hr>
+            <button type="submit" name="bit_p">Ver Bitacora</button>
+            <button onclick="document.location='{{add_p}}'">Añadir planta</button><br>
+            <button onclick="document.location='{{config}}'">Configuracion</button><br>
+            <button onclick="document.location='{{hist_stock}}'">Historial stock</button><br>
+            <button onclick="document.location='{{hist_riego}}'">Historial riegos</button><br>
+        </form>
+        
+
+    </body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        {% if modo == 0 %}
+		    <title>Chequeo Stock</title>
+            <label>Chequeo Stock</label>
+        {% endif %}
+        {% if modo == 1%}
+            <title>Chequeo Riegos</title>
+            <label>Chequeo Riegos</label>
+        {% endif %}
+        <br>
+        <hr>
+	</head>
+	<body>
+        <script src="static/script.js"></script>
+        {% if modo == 0 %}
+            <label>Stock ultimo mes</label><br>
+            {% for key in ult_stock %}
+                <label>{{key}} : {{ult_stock[key]}}</label>
+            {% endfor %}
+        
+        {% set st = namespace(stock=ult_stock) %}
+        {% endif %}
+
+        {% if modo == 1 %}
+        {% for log in logs %}
+        <div>
+            <label>{{log["Fecha"]}}</label><hr>
+                {% if log["Log"]["ID"] == 0 %} <!--RIEGOS-->
+                <label>Riego</label><br>
+                {% endif %}
+
+                {% if log["Log"]["ID"] == 1 %} <!--PULVE-->
+                <label>Pulverizacion</label><br>
+                {% endif %}
+                
+                
+                {% if log["Log"]["ID"] <= 1 %} <!--EXTRAS-->
+                <label>Cantidad = {{log["Log"]["Cantidad"]}} PH = {{log["Log"]["PH"]}} EC = {{log["Log"]["PH"]}} </label><br>
+                <label>Productos: </label>    
+                    {% for prod in log["Log"]["Prods"] %}
+                        <label>{{prod[0]}} - Medida MlxL {{prod[1]}}</label>
+                    {% endfor %} 
+                {% endif %}
+                <br>
+                <label> <!--PLANTAS-->
+                    Plantas Involucradas : 
+                    {% for id in log["IDs"] %}
+                    <label>{{id}}</label>
+                    {% endfor %}
+                </label><hr>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if modo == 0 %}
+        {% for fecha in logs %}
+        <div>
+            <h3>{{fecha}}</h3>
+            <select>
+                <option selected>Ver mas</option>
+                {% for sube in logs[fecha][0] %}
+                <option>{{trans[sube]}} : {{logs[fecha][0][sube]}}</option>
+                {% endfor %}
+            </select>
+
+            {% for log in logs[fecha][1] %}
+                
+                {% if log["Log"]["ID"] == 8 %} <!--Muerte-->
+                <label>Plantas Muertas en {{trans[log["Log"]["Loc"][0]}}</label><br>
+                    {% for id in log["IDs"] %}
+                        <label>{{id}}</label>
+                    {% endfor %}
+                {% endif %}
+                
+                {% if log["Log"]["ID"] == 9 %} <!--Vida-->
+                <label>Plantas Añadidas a {{trans[log["Log"]["Loc"][0]}}</label><br>
+                    {% for id in log["IDs"] %}
+                        <label>{{id}}</label>
+                    {% endfor %}
+                {% endif %}
+            
+                {% if log["Log"]["ID"] == 8 or log["Log"]["ID"] == 9 %}
+                    {% set ns = namespace(cant=0) %}
+                    {% for p in log["IDs"] %}
+                        {% set ns.cant = ns.cant + 1 %}
+                    {% endfor %}
+
+                    {% if log["Log"]["ID"] == 9 %}
+                    <label>+{{ns.cant}}</label><br>
+                    {% set st.stock = st.stock + ns.cant %}
+                    <label>Stock = {{st.stock}}</label>
+                    {% endif %}
+                    
+                    {% if log["Log"]["ID"] == 8 %}
+                    {% set st.stock = st.stock - ns.cant %}
+                    <label>-{{ns.cant}}</label><br>
+                    <label>Stock = {{st.stock}}</label>
+                    {% endif %}
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+        {% endfor %}
+        {% endif %}
+        
+	</body>
+</html>

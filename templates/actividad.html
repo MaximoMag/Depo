@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        {% if modo == 0 %}
+		<title>Registar Actividad - Riego</title>
+        <label>Registar Actividad - Riego</label>
+        {% endif %}
+        {% if modo == 1 %}
+        <title>Registar Actividad - Pulverizacion</title>
+        <label>Registar Actividad - Pulverizacion</label>
+        {% endif %}
+        {% if modo == 2 %}
+        <title>Registar Actividad - Tratamiento Plagas</title>
+        <label>Registar Actividad - Tratamiento Plagas</label>
+        {% endif %}
+        {% if modo == 3 %}
+        <title>Registar Actividad - Tratamiento Hongos</title>
+        <label>Registar Actividad - Tratamiento Hongos</label>
+        {% endif %}
+        {% if modo == 4 %}
+        <title>Registar Actividad - Poda</title>
+        <label>Registar Actividad - Poda</label>
+        {% endif %}
+        {% if modo == 5 %}
+        <title>Registar Actividad - Transplante</title>
+        <label>Registar Actividad - Transplante</label>
+        {% endif %}
+        {% if modo == 6 %}
+        <title>Registar Actividad - Bitacora</title>
+        <label>Registar Actividad - Bitacora</label>
+        {% endif %}
+        {% if modo == 61 %}
+        <title>Registar Actividad - Bitacora Subespacios</title>
+        <label>Registar Actividad - Bitacora Subespacios</label>
+        {% endif %}
+        {% if modo == 62 %}
+        <title>Registar Actividad - Bitacora Espacios</title>
+        <label>Registar Actividad - Bitacora Espacios</label>
+        {% endif %}
+        <br>
+        <hr>
+	</head>
+	<body>
+        <script src="static/script.js"></script>
+		
+        <form method="POST">
+            <select name="modo" hidden><option>{{modo}}</option></select>
+            {% if modo <= 4 %} <!--Si el modo es de aplicacion de productos , muestro las plantas seleccionadas, si es de transplante muestro la planta y su tamaño actual-->
+            <label >Plantas Seleccionadas: </label><br>
+            
+            {% for planta in plantas %}
+            <label>{{planta['ID']}}</label><br>
+            <select name="planta" hidden><option>{{planta["ID"]}}</option></select>
+            {% endfor %}
+            <hr>
+            {% endif %}
+            
+            {% if modo <= 3 %} <!--Riego/Pulve/Trat p/trat h--> 
+            <label for="fecha">Fecha: </label><input type="date" id="fecha" name="fecha" required><br>
+            <label for="cantidad">Cantidad (L): </label><input type="text" id="cantidad" name="cantidad" required><br>
+			<label for="ph">PH: </label><input type="number" step="0.01" min="0" max="14" name="ph" required><br>
+			<label for="ec">EC: </label><input type="number" step="0.01"  name="ec" required><br>
+            <label for="comment">Comentario: <input type="text" id="comment" name="comment"></label><br>
+            
+            <hr>
+            <div id="producto_0">
+                <label for="prodcuto">Producto: </label>
+                <select name="producto" id="producto">
+                    {% for prod in productos %}
+                    <option value="{{prod}}" >{{prod}}</option>
+                    {% endfor %}
+                </select>
+                <label for="medida">Medida ML. x Lt: </label><input type="number" name="medida" required>  
+            </div>
+            <button type="button" id="addProd" name="addProd" onclick="copiar_div(document.getElementById('producto_0'),document.getElementById('addProd'))">+</button><hr>
+            {% endif %}
+            
+            {% if modo == 4 %} <!--PODAS-->
+            <label>Fecha:</label><input type="date" name="fecha" required><br>
+            <label>Poda:</label>
+            <select name="metodo">
+                <option>Apical</option>
+                <option>Poda de Bajos</option>
+                <option>Poda de esquejes</option>
+                <option>Poda general</option>
+                <option>Otro</option>
+            </select><br>
+            <label for="comment">Comentario: <input type="text" id="comment" name="comment"></label><br>
+            {% endif %}            
+            
+            
+            {% if modo == 5 %} <!--TRANSPLANTES-->
+            <div id="plantas">
+                <label>Plantas Seleccionadas</label><br>
+                <label>Seleccionar Todas</label><input id="tpc" type="checkbox" onclick="checkOtherBoxes(document.getElementById('tpc'),document.getElementById('plantas').children)"><hr>
+                {% set ns = namespace(found=false) %}
+                {% for planta in plantas %}
+                <div>
+                    <select name="planta" hidden><option>{{planta['ID']}}</option></select>
+                    <label for="fecha">Fecha: </label><input type="date" name="fecha">
+                    <label for = "{{planta['id']}}">{{planta['ID']}} en {{planta['Tam']}}</label><!--Podria mostrar a que tamaño va a ir-->
+                    <select name="tam">
+                            {% for tam in tams %}    
+
+                                {% if ns.found == true %}
+                                    <option>{{tam}}</option>
+                                {% endif %}
+
+                                {% if tam == planta["Tam"] %}
+                                    {% set ns.found = true %}
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% set ns.found = false %}
+                    </select>
+                    <label>Transplante Global </label><input type="checkbox" name="{{planta['ID']}}">
+                </div>
+                {% endfor %}
+            </div>
+            <hr>
+            
+            <div>
+                <label>Transplante Global</label><br>
+                <label for="fechaglob">Fecha: </label><input type="date" name="fechaglob" ><br>
+                <select name="tamglob">
+                    {% for tam in tams %}
+                        <option>{{tam}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            {% endif %}
+            
+            {% if modo == 61 %}
+            <select name="sube" hidden><option>{{sube["ID"]}}</option></select>
+            {% endif %}
+            
+            {% if modo == 62 %}
+            <select name="esp" hidden><option>{{esp["ID"]}}</option></select>
+            {% endif %}
+
+
+            {% if modo == 6 or modo == 61 or modo == 62 %} <!--Bitacora-->
+            <label for="fecha">Fecha: </label><input type="date" name="fecha" required>
+			<label for="text_area">Comentario: </label><br><textarea id="text_area" name="comment" required></textarea><br>
+            {% endif %}
+            <input type="submit" value="Registrar"><br>
+        
+        
+        
+        </form> 
+        
+        
+	</body>
+    </html>

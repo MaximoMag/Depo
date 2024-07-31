@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% if mode == 0 %}
+        <title>Modificar Plantas</title>
+        <label>Modificar Plantas</label><br><hr>
+        {% endif %}
+        {% if mode == 1 %}
+        <title>Modificar Espacios</title>
+        <label>Modificar Espacios</label><br><hr>
+        {% endif %}
+    </head>
+    <body>
+        <script src="static/script.js"></script>
+        
+        <form  method="POST">
+            <select name="modo" hidden><option>{{modo}}</option></select>
+            {% if mode == 0 %} <!--Modificar Plantas-->
+            <div id="plants">
+                <label>Plantas Seleccionadas: </label><br>
+                <label>Seleccionar Todas</label><input id="tpc" type="checkbox" onclick="checkOtherBoxes(document.getElementById('tpc'),document.getElementById('plants').children)"><hr>
+                {% for planta in plantas %}
+                <div>
+                    <label>{{planta["ID"]}}</label><br>
+                    <select name="planta" hidden><option>{{planta["ID"]}}</option></select>
+                    <label for="fecha">Fecha: </label><input type="date" id="fecha" name="fecha">
+                    <label>Subespacio: </label>
+                    <select name="sube">
+                        <option selected>Seleccionar</option>
+                        {% for esp in espacios %}
+                            {% for sube in esp["Subespacios"] %}
+                                <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube['Nombre']}}</option>
+                            {% endfor %}
+                        {% endfor %}
+                    </select>
+                    <label>Estadio: </label>
+                    <select name="Estadio">
+                        <option selected>Seleccionar</option>
+                        {% for est in ests %}
+                        <option name="{{est}}">{{est}}</option>
+                        {% endfor %}
+                    </select>
+                    <label>Modificacion Global</label><input type="checkbox" id= "{{planta['ID']}}" name = "{{planta['ID']}}"><hr>
+                </div>
+                {% endfor %}
+            </div>
+            <div>
+                <label>Modificacion global</label><br>
+                <label for="fechag">Fecha: </label><input type="date" id="fechag" name="fechag" ><br>
+                <label>Subespacio: </label>
+                <select name="subeglob">
+                    <option selected>Seleccionar</option>
+                    {% for esp in espacios %}
+                            {% for sube in esp["Subespacios"] %}
+                                <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube['Nombre']}}</option>
+                            {% endfor %}
+                        {% endfor %}
+                </select><br>
+                <label>Estadio: </label>
+                <select name="Estadioglob">
+                    <option selected>Seleccionar</option>
+                    {% for est in ests %}
+                        <option >{{est}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            
+            
+            {% endif %}
+
+
+            {% if mode == 1 %}
+                {% if vacio is sameas true %}
+                    <button type="submit" name="delete" value="{{espacio['ID']}}">Eliminar Espacio</button>
+                {% endif %}
+            
+            {% if espacio["Subespacios"]  %}
+            <div>
+                <label>Subespacios Actuales </label><br>
+                {% for sube in espacio["Subespacios"] %}
+                    <label>{{sube["Nombre"]}}</label>
+                    {% set p = namespace(plantas=0) %} 
+                    {% set dp = namespace(d_plantas=0) %}
+                    
+                    {% for planta in sube['Individuos'] %}
+                        {% if planta["Estadio"] is sameas "Muerta" %}
+                            {% set dp.d_plantas = dp.d_plantas + 1}
+                        {% endif %}
+                        
+                        {% if planta["Estadio"] is not sameas "Muerta" %}
+                            {% set p.plantas = p.planta + 1}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if p.plantas is sameas dp.d_plantas %}
+                        <button type="submit" name="del_sube" value="{{sube['ID']}}">Eliminar Subespacio</button><br>
+                    {% endif %}
+
+                {% endfor %}
+            </div>
+            {% endif %}
+            <select name="esp" hidden><option>{{esp["ID"]}}</option></select>
+            <div id="sube_0" name="sube_0">
+                <label for="nombre">Nombre Subespacio: </label><input type="text" name="nombre">
+            <!--Tiene clones?? checkbox-->
+            </div>
+            <button type="button" id="addSube" onclick="copiar_div(document.getElementById('sube_0'),document.getElementById('addSube'))">+</button><br>
+            {% endif %}
+            
+            <input type="submit" value="Modificar"><br>
+        </form>
+    </body>
+</html>

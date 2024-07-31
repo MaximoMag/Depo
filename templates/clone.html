@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <title>Clonar</title>
+        <label>Clonar</label>
+        <br>
+        <hr>
+	</head>
+	<body>
+        <script src="static/script.js"></script>
+        <form method="POST">
+            <label>{{fecha}}</label><br>
+            {% for var in vars %}
+                <div>
+                    <select name="var" hidden><option>{{var}}</option></select>
+                    <label>{{var}}</label><br>
+                    <label>Cantidad de clones:</label><input   name="clones"  type="number">
+                    <select name="sube">
+                        {% for esp in espacios %}
+                            {% for sube in esp["Subespacios"] %}
+                                {% if sube["Clones"] is sameas true %}
+                                    <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube["Nombre"]}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </select>
+                    <select name="tam">
+                        {% for tam in tams %}
+                            <option>{{tam}}</option>
+                        {% endfor %}
+                    </select>
+                </div><hr>
+            {% endfor %}
+            <button type="submit">Clonar</button>
+        </form>        
+	</body>
+</html>

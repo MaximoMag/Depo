@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Bitacora</title>
+        <label>Bitacora</label><br>
+        <hr>
+	</head>
+	<body>
+        <script src="static/script.js"></script>
+        <div>
+            <label>Plantas Seleccionadas: </label><br>
+            {% for planta in plantas %}
+                <label>{{planta["ID"]}}</label>
+            {% endfor %}
+        </div>
+        <hr>
+        
+        <div>
+            {% for fecha in logs %}
+                <div>
+                    <h2>{{fecha}}</h2><hr>
+                    {% for log in logs[fecha] %}
+                        <h3>Plantas Afectadas: </h3>
+                            {% for p in log[0] %}
+                            <label>{{p}}</label>
+                            {% endfor %}
+                            <br><br>
+
+                        {% if log[1]["Log"]["ID"] == 0 %}
+                        <h3>Riego</h3>
+                        <label>Cantidad = {{log[1]["Log"]["Cantidad"]}} ml</label>
+                        <label>PH = {{log[1]["Log"]["PH"]}} </label>
+                        <label>EC = {{log[1]["Log"]["EC"]}} ml</label>
+
+                        {% if log[1]["Log"]["Comment"] %}
+                        <br><label>Comentario = {{log[1]["Log"]["Comment"]}} </label><br>
+                        {% endif %}
+                        
+                        <label>Productos : </label>
+                        {% for prod in log[1]["Log"]["Prods"] %}
+                            <label>{{prod[0]}} , Medida = {{prod[1]}} MlxL</label><br>
+                        {% endfor %}
+                        <hr>
+                        {% endif %}
+                        
+                        {% if log[1]["Log"]["ID"] == 1 %}
+                        <h3>Pulverizacion</h3>
+                            <label>Cantidad = {{log[1]["Log"]["Cantidad"]}} ml</label>
+                            <label>PH = {{log[1]["Log"]["PH"]}} </label>
+                            <label>EC = {{log[1]["Log"]["EC"]}} ml</label>
+                            
+                            {% if log[1]["Log"]["Comment"] %}
+                            <br><label>Comentario = {{log[1]["Log"]["Comment"]}} </label><br>
+                            {% endif %}
+
+                            <label>Productos : </label>
+                            {% for prod in log[1]["Log"]["Prods"] %}
+                                <label>{{prod[0]}} , Medida = {{prod[1]}} MlxL</label><br>
+                            {% endfor %}
+                            <hr>
+                        {% endif %}
+                        
+                        {% if log[1]["Log"]["ID"] == 2 %}
+                        <h3>Tratamiento Plagas</h3>
+                            <label>Cantidad = {{log[1]["Log"]["Cantidad"]}} ml</label>
+                            <label>PH = {{log[1]["Log"]["PH"]}} </label><br>
+                            <label>EC = {{log[1]["Log"]["EC"]}} ml</label><br>
+                            
+                            {% if log[1]["Log"]["Comment"] %}
+                            <label>Comentario = {{log[1]["Log"]["Comment"]}} </label><br>
+                            {% endif %}
+                        
+                            {% for prod in log[1]["Log"]["Prods"] %}
+                                <label>Producto = {{prod[0]}} , Medida = {{prod[1]}} MlxL</label>
+                            {% endfor %}
+                            <hr>
+                        {% endif %}
+                        
+                        {% if log[1]["Log"]["ID"] == 3 %}
+                            <h3>Tratamiento Hongos</h3>
+                            <label>Cantidad = {{log[1]["Log"]["Cantidad"]}} ml</label>
+                            <label>PH = {{log[1]["Log"]["PH"]}} </label><br>
+                            <label>EC = {{log[1]["Log"]["EC"]}} ml</label><br>
+                        
+                            {% if log[1]["Log"]["Comment"] %}
+                            <label>Comentario = {{log[1]["Log"]["Comment"]}} </label><br>
+                            {% endif %}
+                        
+                            {% for prod in log[1]["Log"]["Prods"] %}
+                                <label>Producto = {{prod[0]}} , Medida = {{prod[1]}} MlxL</label>
+                            {% endfor %}
+                            <hr>
+                        {% endif %}
+                        
+                        {% if log[1]["Log"]["ID"] == 4 %}
+                            <h3>Poda</h3>
+                            <label>Tipo = {{log[1]["Log"]["Tipo"]}}</label>
+                        
+                            {% if log[1]["Log"]["Comment"] %}
+                                <br><label>Comentario = {{log[1]["Log"]["Comment"]}} </label><br>
+                            {% endif %}
+                            <hr>
+                        {% endif %}
+                        
+                        
+                        {% if log[1]["Log"]["ID"] == 5 %}
+                            <h3>Transplante</h3>
+                            <label>Tamaño = {{log[1]["Log"]["Tam"]}}</label><br>
+                        
+                            {% if log[1]["Log"]["Comment"] %}
+                                <br><label>Comentario = {{log[1]["Log"]["Comment"]}} </label><br>
+                            {% endif %}
+                        {% endif %}
+                        
+                        {% if log[1]["Log"]["ID"] == 6 %}
+                            <h3>Bitacora</h3>
+                            <label>Comentario = {{log[1]["Log"]["Comment"]}} </label><br>
+                        {% endif %}
+                        
+                        {% if log[1]["Log"]["ID"] == 7 %}
+                            <h3>Planta/s Movida/s</h3>
+                            <label>A = {{log[1]["Log"]["Loc"]}}</label><br>
+                        {% endif %}
+                        
+                        {% if log[1]["Log"]["ID"] == 8 %}
+                            <h3>Cambio de estadio</h3>
+                            <label>A = {{log[1]["Log"]["Est"]}}</label><br>
+                        {% endif %}
+                        
+                        {% if log[1]["Log"]["ID"] == 9 %}
+                            <h3>Planta/s añadidas</h3>
+                            <label> A = {{log[1]["Log"]["Loc"]}}</label>
+                        {% endif %}
+                        
+                        {% if log[1]["Log"]["ID"] == 10 %}
+                            <h3>Planta/s muertas</h3>
+                        {% endif %}
+                        
+                        {% if log[1]["Log"]["ID"] == 61 %}
+                            <h3>Bitacora Subespacio</h3>
+                            <label>Subespacio = {{log[1]["IDs"][0]}}</label><br>
+                            <label>Comentario = {{log[1]["Log"]["Comment"]}}</label>
+                        {% endif %}
+                        
+                        {% if log[1]["Log"]["ID"] == 62 %}
+                            <h3>Bitacora Espacios</h3>
+                            <label>Espacio = {{log[1]["IDs"][0]}}</label><br>
+                            <label>Comentario = {{log[1]["Log"]["Comment"]}}</label>
+                        {% endif %}
+                        <hr>
+
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
+		 
+	</body>
+</html>
