@@ -1,0 +1,7 @@
+__pycache__/
+idea/
+a.json
+*.zip
+depot.json
+*.txt
+test.py
