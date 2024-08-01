@@ -22,8 +22,8 @@
                 <label for="sube">Subespacio: </label>
                 
                 <select name="sube">
-                    {% for esp in espacios %}
-                        {% for sube in esp["Subespacios"] %}
+                    {% for esp in espacios if esp["Existe"]%}
+                            {% for sube in esp["Subespacios"] if sube["Existe"] and not sube["Clones"] %}
                         <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube["Nombre"]}}</option>
                         {% endfor %}
                     {% endfor %}

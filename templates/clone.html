@@ -16,8 +16,8 @@
                     <label>{{var}}</label><br>
                     <label>Cantidad de clones:</label><input   name="clones"  type="number">
                     <select name="sube">
-                        {% for esp in espacios %}
-                            {% for sube in esp["Subespacios"] %}
+                        {% for esp in espacios if esp["Existe"] %}
+                            {% for sube in esp["Subespacios"] if sube["Existe"] %}
                                 {% if sube["Clones"] is sameas true %}
                                     <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube["Nombre"]}}</option>
                                 {% endif %}

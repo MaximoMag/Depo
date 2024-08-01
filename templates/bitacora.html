@@ -40,7 +40,6 @@
                             {% for prod in log[1]["Log"]["Prods"] %}
                                 <label>{{prod[0]}} , Medida = {{prod[1]}} MlxL</label><br>
                             {% endfor %}
-                            <hr>
                         {% endif %}
                         
                         {% if log[1]["Log"]["ID"] == 4 %}
@@ -50,7 +49,6 @@
                             {% if log[1]["Log"]["Comment"] %}
                                 <br><label>Comentario = {{log[1]["Log"]["Comment"]}} </label><br>
                             {% endif %}
-                            <hr>
                         {% endif %}
                         
                         
@@ -73,7 +71,7 @@
                             <label>A = {{trans[log[1]["Log"]["Loc"]]}}</label><br>
                         {% endif %}
                         
-                        {% if log[1]["Log"]["ID"] == 8 %}
+                        {% if log[1]["Log"]["ID"] == 10 %}
                             <h3>Cambio de estadio</h3>
                             <label>A = {{log[1]["Log"]["Est"]}}</label><br>
                         {% endif %}
@@ -84,15 +82,13 @@
                             {% for p in log[0] %}
                             <label>{{p}}</label>
                             {% endfor %}
-                            <br><br>
                         {% endif %}
                         
-                        {% if log[1]["Log"]["ID"] == 10 %}
+                        {% if log[1]["Log"]["ID"] == 8 %}
                             <h3>Planta/s muertas</h3><br>
                             {% for p in log[0] %}
                             <label>{{p}}</label>
                             {% endfor %}
-                            <br><br>
                         {% endif %}
                         
                         {% if log[1]["Log"]["ID"] == 61 %}
@@ -108,7 +104,7 @@
                         {% endif %}
                         
                         <br>
-                        {% if log[1]["Log"]["ID"] != 9 and log[1]["Log"]["ID"] != 10 %}
+                        {% if log[1]["Log"]["ID"] != 9 and log[1]["Log"]["ID"] != 8 %}
                         <h3>Plantas Afectadas: </h3>
                             {% for p in log[0] %}
                             <label>{{p}}</label>

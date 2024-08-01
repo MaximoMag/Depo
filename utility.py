@@ -57,9 +57,9 @@ def add_to_fdb(db,espacios:list[dict]=None,variedades:list[dict]=None,prods:list
 
 
     if prods is not None:    
-        p_rr = db.reference("/Producto/prods_r/")
-        p_pr = db.reference("/Producto/prods_p/")
-        p_hr = db.reference("/Producto/prods_h/")
+        p_rr = db.reference("/Productos/prods_r/")
+        p_pr = db.reference("/Productos/prods_p/")
+        p_hr = db.reference("/Productos/prods_h/")
 
         old_pr = p_rr.get()
         old_pp = p_pr.get()
@@ -185,14 +185,19 @@ def mod_plant(file:str,plants:list[dict],sube:str=None,estadio:str=None,size:str
                 break
             
         if sube is not None and sube != curr_sube["ID"]:
+            if estadio is not None: plant["Estadio"] = estadio
+            if size is not None: plant["Tam"] = size
+
             a["Espacios"][loc_id[0]]["Subespacios"][loc_id[1]]["Individuos"].pop(plant_idx)
             new_loc_id = get_loc_idx(sube)
             a["Espacios"][new_loc_id[0]]["Subespacios"][new_loc_id[1]]["Individuos"].append(plant)
             a["Variedades"][var_j]["Individuos"][var_idx[1]]["Loc"] = sube
-        if estadio is not None:
+
+
+        elif estadio is not None:
             a["Espacios"][loc_id[0]]["Subespacios"][loc_id[1]]["Individuos"][plant_idx]["Estadio"] = estadio
 
-        if size is not None:
+        elif size is not None:
             a["Espacios"][loc_id[0]]["Subespacios"][loc_id[1]]["Individuos"][plant_idx]["Tam"] = size
 
 
@@ -224,27 +229,36 @@ def mod_plant_fbd(db,plantas:list[dict],sube:str=None,estadio:str=None,size:str=
             break
     
     if sube is not None and sube != curr_loc_id:
+        if estadio is not None: plant["Estadio"] = estadio
+        if size is not None: plant["Tam"] = size
+
         db.reference(f"/Espacios/{loc_id[0]}/Subespacios/{loc_id[1]}/Individuos/{plant_idx}").delete()
         
         new_loc_id = get_loc_idx(sube)
-        new_loc_ref = db.reference(f"/Espacios/{new_loc_id[0]}/Subespacios/{new_loc_id[1]}/Individuos")
-        new_loc_len = 0 if new_loc_ref.get() is None else len(new_loc_ref.get())
-        new_loc_ref.child(new_loc_len).set(plant)
-
+        new_loc_ref = db.reference(f"/Espacios/{new_loc_id[0]}/Subespacios/{new_loc_id[1]}/Individuos/")
+        
+        old = new_loc_ref.get() 
+        if old is None:old = []
+        
+        new_loc_ref.set(old + [plant])
         db.reference(f"/Variedades/{var_j}/Individuos/{var_idx[1]}").update({"Loc":sube})
 
-    if estadio is not None:
+    elif estadio is not None:
         db.reference(f"/Espacios/{loc_id[0]}/Subespacios/{loc_id[1]}/Individuos/{plant_idx}").update({"Estadio":estadio})
-
-    if size is not None:
+        
+    elif size is not None:
         db.reference(f"/Espacios/{loc_id[0]}/Subespacios/{loc_id[1]}/Individuos/{plant_idx}").update({"Tam":size})    
-
+        
 def delete(file:str,type:str,id:int=None,type2:str=None,idx2:int=None):
     a = read_json(file)
 
-    if type2 is None:a[type].pop(id)
+    if type2 is None:
+        if type != "Espacios":a[type].pop(id)
+        else: a[type]["Existe"] = False
     else: 
-        if id is not None:a[type][id][type2].pop(idx2)
+        if id is not None:
+            if type != "Espacios":a[type][id][type2].pop(idx2)
+            else: [type][id][type2]["Existe"] = False
         else: a[type][type2].pop(idx2)
 
     with open(file=file,mode="w",encoding="UTF-8") as f:
@@ -252,11 +266,23 @@ def delete(file:str,type:str,id:int=None,type2:str=None,idx2:int=None):
         f.close()
 
 def delete_fdb(db,type:str,id:int=None,type2:str=None,idx2:int=None):
+    if type2 is None:
+        if type != "Espacios":
+            ref = db.reference(f"/{type}")
+            old_ = ref.get()
+            old_.pop(id)
+            ref.set(old_)
 
-    if type2 is None:db.reference(f"/{type}/{id}").delete()
+        else:db.reference(f"/{type}/{id}").update({"Existe":False})
     else: 
-        if id is not None:db.reference(f"/{type}/{id}/{type2}/{idx2}").delete()
-        else: db.reference(f"/{type}/{type2}/{idx2}").delete()
+        if id is not None:
+            if type != "Espacios":db.reference(f"/{type}/{id}/{type2}/{idx2}").delete()
+            else: db.reference(f"/{type}/{id}/{type2}/{idx2}").update({"Existe":False})
+        else: 
+            ref = db.reference(f"/{type}/{type2}")
+            old_ = ref.get()
+            old_.pop(idx2)
+            ref.set(old_)
 
 def get_loc_idx(id:str) -> tuple[int,int]: #[0] = id espacio| [1] = id subespacio
     e_idx = 2

@@ -60,7 +60,7 @@
         {% if espacios %}
         <form method="POST">
         <label>Espacios Actuales</label><br>
-        {% for esp in espacios %}
+        {% for esp in espacios if esp["Existe"] %}
             <label>{{esp['Nombre']}}</label> <button type="submit" name="edit" value="{{esp['ID']}}">Edit</button>
         {% endfor %}
         </form>
@@ -84,9 +84,10 @@
             <label>Variedades Actuales</label><br>
             {% for var in variedades %}
                 <label>{{var['Nombre']}}</label>
-                    {% if not var["indivs"] %}
-                        <button type="submit" name="delVar" value="{{var['Nombre']}}">X</button><br>
+                    {% if not var["Individuos"] %}
+                        <button type="submit" name="delVar" value="{{var['Nombre']}}">X</button>
                     {% endif %}
+                    <br>
             {% endfor %}
         </div>
         <hr>
@@ -206,10 +207,10 @@
         {% if modo == 6 %}
             <form method="POST">
             <select name="modo" hidden><option>{{modo}}</option></select>
-            {% for esp in espacios %}
+            {% for esp in espacios if esp["Existe"] %}
                 <div>
                     <label>{{esp["Nombre"]}}</label>
-                    {% for sube in esp["Subespacios"] %}
+                    {% for sube in esp["Subespacios"] if sube["Existe"]%}
                         <div>
                             <label>{{sube["Nombre"]}}</label>
                             <label>Contiene Clones</label>

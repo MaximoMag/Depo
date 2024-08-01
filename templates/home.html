@@ -15,19 +15,19 @@
         <script src="static/script.js"></script>
         <hr>
         <form method="POST">
-                {% for espacio in espacios %}
+                {% for espacio in espacios if espacio["Existe"] %}
                 <div id="{{espacio['Nombre']}}">
                     <label for="{{espacio['ID']}}">{{espacio["Nombre"]}} :</label>
                     <input type="checkbox" id="{{espacio['ID']}}" name="{{espacio['ID']}}" 
                     onclick="checkOtherBoxes(document.getElementById(`{{espacio['ID']}}`),document.getElementById(`{{espacio['Nombre']}}`).children)">                    
                     <button type="submit" value="{{espacio['ID']}}" name="log">Añadir Bitacora {{espacio["Nombre"]}}</button>
-                    {% for sube in espacio['Subespacios'] %}
+                    {% for sube in espacio['Subespacios'] if sube["Existe"] %}
                         <div id="{{sube['Nombre']}}">
                             <label for = "{{sube['ID']}}">{{sube["Nombre"]}}</label>
                             <input type="checkbox" id= "{{sube['ID']}}" name = "{{sube['ID']}}"
                             onclick="checkOtherBoxes(document.getElementById(`{{sube['ID']}}`),document.getElementById(`{{sube['Nombre']}}`).children)">
                             <button type="submit" value="{{sube['ID']}}" name="log_s">Añadir Bitacora {{sube["Nombre"]}}</button>
-                            {% for planta in sube["Individuos"] %}
+                            {% for planta in sube["Individuos"] if planta["Estadio"] != "Muerta" %}
                             <br>    
                             <label for = "{{planta['ID']}}">{{planta['ID']}}: {{planta['Tam']}}</label>
                                 <input type="checkbox" id= "{{planta['ID']}}" name= "{{planta['ID']}}">

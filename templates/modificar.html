@@ -28,8 +28,8 @@
                     <label>Subespacio: </label>
                     <select name="sube">
                         <option selected>Seleccionar</option>
-                        {% for esp in espacios %}
-                            {% for sube in esp["Subespacios"] %}
+                        {% for esp in espacios if esp["Existe"] %}
+                            {% for sube in esp["Subespacios"] if sube["Existe"] and not sube["Clones"] %}
                                 <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube['Nombre']}}</option>
                             {% endfor %}
                         {% endfor %}
@@ -51,8 +51,8 @@
                 <label>Subespacio: </label>
                 <select name="subeglob">
                     <option selected>Seleccionar</option>
-                    {% for esp in espacios %}
-                            {% for sube in esp["Subespacios"] %}
+                    {% for esp in espacios if esp["Existe"] %}
+                            {% for sube in esp["Subespacios"] if sube["Existe"] and not sube["Clones"] %}
                                 <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube['Nombre']}}</option>
                             {% endfor %}
                         {% endfor %}
@@ -79,7 +79,7 @@
             {% if espacio["Subespacios"]  %}
             <div>
                 <label>Subespacios Actuales </label><br>
-                {% for sube in espacio["Subespacios"] %}
+                {% for sube in espacio["Subespacios"] if sube["Existe"] %}
                     <label>{{sube["Nombre"]}}</label>
                     {% set p = namespace(plantas=0) %} 
                     {% set dp = namespace(d_plantas=0) %}
@@ -90,7 +90,7 @@
                         {% endif %}
                         
                         {% if planta["Estadio"] is not sameas "Muerta" %}
-                            {% set p.plantas = p.planta + 1 %}
+                            {% set p.plantas = p.plantas + 1 %}
                         {% endif %}
                     {% endfor %}
 
