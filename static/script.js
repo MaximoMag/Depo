@@ -57,32 +57,18 @@ function checkOtherBoxes(check,children){
 }
 
 
-function modifyTamMenu(plantas,selMenu,tamLab){
-    let planta = null
-    let id = selMenu.options[selMenu.selectedIndex].value
-    for(let i =0;i<plantas.length;i++){
-        if (plantas[i]["id"] == id || `${plantas[i]["id"]}` == `${id}`){
-            planta = plantas[i]
-    
-        }
-    }
-    tamLab.innerHTML = planta["tam"]    
+function hide_children(div)
+{   
+    let children = div.children
+    for(let i = 0;i<children.length;i++) {hide_(children[i])};
 }
 
 
-function update_sel_mode(sel_mode,div,all_plants){
-    let mode = sel_mode.options[sel_mode.selectedIndex].value
-    for(let i =0;i<div.children.length;i++){
-        if (div.children[i].type == "checkbox"){
-            if(mode == "Bitacora-Plantas"){
-                div.children[i].disabled = false;
-                all_plants.disabled = false;
-            }else{
-                div.children[i].disabled = true;
-                all_plants.disabled = true;
-            }
-        }else{
-            update_sel_mode(sel_mode,div.children[i],all_plants)
-        }
-    }
+function hide_(entry)
+{
+    let children = entry.children
+    if (children != undefined) {for(let i = 0;i<children.length;i++) {hide_children(children[i])}}
+
+    if(entry.style.display == "none") {entry.style.display = "block"}
+    else {entry.style.display = "none"}
 }

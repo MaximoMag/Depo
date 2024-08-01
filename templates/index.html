@@ -3,6 +3,11 @@
 	<head>
 		<title>Ingreso</title>
 		<label>Ingreso</label><br><hr>
+		{% with mes = get_flashed_messages() %}
+		{% if mes %}
+		<label>{{mes}}</label>
+		{% endif %}
+		{% endwith %}
 	</head>
 	<body>
 		<form action="/" method="POST">

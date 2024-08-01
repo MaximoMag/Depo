@@ -14,7 +14,8 @@
         <script src="static/script.js"></script>
         
         <form  method="POST">
-            <select name="modo" hidden><option>{{modo}}</option></select>
+            <select name="modo" hidden><option>{{mode}}</option></select>
+
             {% if mode == 0 %} <!--Modificar Plantas-->
             <div id="plants">
                 <label>Plantas Seleccionadas: </label><br>
@@ -85,11 +86,11 @@
                     
                     {% for planta in sube['Individuos'] %}
                         {% if planta["Estadio"] is sameas "Muerta" %}
-                            {% set dp.d_plantas = dp.d_plantas + 1}
+                            {% set dp.d_plantas = dp.d_plantas + 1 %}
                         {% endif %}
                         
                         {% if planta["Estadio"] is not sameas "Muerta" %}
-                            {% set p.plantas = p.planta + 1}
+                            {% set p.plantas = p.planta + 1 %}
                         {% endif %}
                     {% endfor %}
 
@@ -100,7 +101,7 @@
                 {% endfor %}
             </div>
             {% endif %}
-            <select name="esp" hidden><option>{{esp["ID"]}}</option></select>
+            <select name="esp" hidden><option>{{espacio["ID"]}}</option></select>
             <div id="sube_0" name="sube_0">
                 <label for="nombre">Nombre Subespacio: </label><input type="text" name="nombre">
             <!--Tiene clones?? checkbox-->

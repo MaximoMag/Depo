@@ -7,87 +7,38 @@
 	</head>
 	<body>
         <script src="static/script.js"></script>
-        <div>
-            <label>Plantas Seleccionadas: </label><br>
-            {% for planta in plantas %}
-                <label>{{planta["ID"]}}</label>
-            {% endfor %}
-        </div>
-        <hr>
-        
+        <div> <label>Plantas Seleccionadas: </label><br>
+        {% for planta in plantas %}
+            <label>{{planta["ID"]}}</label>
+        {% endfor %}
+        </div><hr>
+
         <div>
             {% for fecha in logs %}
-                <div>
-                    <h2>{{fecha}}</h2><hr>
+            <button onclick="hide_children(document.getElementsByName('{{fecha}}')[0])"><h2>{{fecha}}</h2></button><hr>
+                <div name="{{fecha}}">
+
                     {% for log in logs[fecha] %}
-                        <h3>Plantas Afectadas: </h3>
-                            {% for p in log[0] %}
-                            <label>{{p}}</label>
-                            {% endfor %}
-                            <br><br>
-
-                        {% if log[1]["Log"]["ID"] == 0 %}
-                        <h3>Riego</h3>
-                        <label>Cantidad = {{log[1]["Log"]["Cantidad"]}} ml</label>
-                        <label>PH = {{log[1]["Log"]["PH"]}} </label>
-                        <label>EC = {{log[1]["Log"]["EC"]}} ml</label>
-
-                        {% if log[1]["Log"]["Comment"] %}
-                        <br><label>Comentario = {{log[1]["Log"]["Comment"]}} </label><br>
-                        {% endif %}
+                    <div>
                         
-                        <label>Productos : </label>
-                        {% for prod in log[1]["Log"]["Prods"] %}
-                            <label>{{prod[0]}} , Medida = {{prod[1]}} MlxL</label><br>
-                        {% endfor %}
-                        <hr>
-                        {% endif %}
-                        
-                        {% if log[1]["Log"]["ID"] == 1 %}
-                        <h3>Pulverizacion</h3>
-                            <label>Cantidad = {{log[1]["Log"]["Cantidad"]}} ml</label>
+                        {% if log[1]["Log"]["ID"] <= 3 %}
+                            {% with id = log[1]["Log"]["ID"] %}
+                            {% if id == 0 %} <h3>Riego</h3> {% endif %}
+                            {% if id == 1 %} <h3>Pulverizacion</h3> {% endif %}
+                            {% if id == 2 %} <h3>Tratamiento Plagas</h3> {% endif %}
+                            {% if id == 3 %} <h3>Tratamiento Hongos</h3> {% endif %}
+                            {% endwith %}
+                            <label>Cantidad = {{log[1]["Log"]["Cantidad"]}} L</label>
                             <label>PH = {{log[1]["Log"]["PH"]}} </label>
-                            <label>EC = {{log[1]["Log"]["EC"]}} ml</label>
-                            
+                            <label>EC = {{log[1]["Log"]["EC"]}} </label>
+
                             {% if log[1]["Log"]["Comment"] %}
                             <br><label>Comentario = {{log[1]["Log"]["Comment"]}} </label><br>
                             {% endif %}
-
+                            
                             <label>Productos : </label>
                             {% for prod in log[1]["Log"]["Prods"] %}
                                 <label>{{prod[0]}} , Medida = {{prod[1]}} MlxL</label><br>
-                            {% endfor %}
-                            <hr>
-                        {% endif %}
-                        
-                        {% if log[1]["Log"]["ID"] == 2 %}
-                        <h3>Tratamiento Plagas</h3>
-                            <label>Cantidad = {{log[1]["Log"]["Cantidad"]}} ml</label>
-                            <label>PH = {{log[1]["Log"]["PH"]}} </label><br>
-                            <label>EC = {{log[1]["Log"]["EC"]}} ml</label><br>
-                            
-                            {% if log[1]["Log"]["Comment"] %}
-                            <label>Comentario = {{log[1]["Log"]["Comment"]}} </label><br>
-                            {% endif %}
-                        
-                            {% for prod in log[1]["Log"]["Prods"] %}
-                                <label>Producto = {{prod[0]}} , Medida = {{prod[1]}} MlxL</label>
-                            {% endfor %}
-                            <hr>
-                        {% endif %}
-                        
-                        {% if log[1]["Log"]["ID"] == 3 %}
-                            <h3>Tratamiento Hongos</h3>
-                            <label>Cantidad = {{log[1]["Log"]["Cantidad"]}} ml</label>
-                            <label>PH = {{log[1]["Log"]["PH"]}} </label><br>
-                            <label>EC = {{log[1]["Log"]["EC"]}} ml</label><br>
-                        
-                            {% if log[1]["Log"]["Comment"] %}
-                            <label>Comentario = {{log[1]["Log"]["Comment"]}} </label><br>
-                            {% endif %}
-                        
-                            {% for prod in log[1]["Log"]["Prods"] %}
-                                <label>Producto = {{prod[0]}} , Medida = {{prod[1]}} MlxL</label>
                             {% endfor %}
                             <hr>
                         {% endif %}
@@ -119,7 +70,7 @@
                         
                         {% if log[1]["Log"]["ID"] == 7 %}
                             <h3>Planta/s Movida/s</h3>
-                            <label>A = {{log[1]["Log"]["Loc"]}}</label><br>
+                            <label>A = {{trans[log[1]["Log"]["Loc"]]}}</label><br>
                         {% endif %}
                         
                         {% if log[1]["Log"]["ID"] == 8 %}
@@ -129,26 +80,44 @@
                         
                         {% if log[1]["Log"]["ID"] == 9 %}
                             <h3>Planta/s añadidas</h3>
-                            <label> A = {{log[1]["Log"]["Loc"]}}</label>
+                            <label> A = {{trans[log[1]["Log"]["Loc"]]}}</label><br>
+                            {% for p in log[0] %}
+                            <label>{{p}}</label>
+                            {% endfor %}
+                            <br><br>
                         {% endif %}
                         
                         {% if log[1]["Log"]["ID"] == 10 %}
-                            <h3>Planta/s muertas</h3>
+                            <h3>Planta/s muertas</h3><br>
+                            {% for p in log[0] %}
+                            <label>{{p}}</label>
+                            {% endfor %}
+                            <br><br>
                         {% endif %}
                         
                         {% if log[1]["Log"]["ID"] == 61 %}
                             <h3>Bitacora Subespacio</h3>
-                            <label>Subespacio = {{log[1]["IDs"][0]}}</label><br>
+                            <label>Subespacio = {{trans[log[1]["IDs"][0]]}}</label><br>
                             <label>Comentario = {{log[1]["Log"]["Comment"]}}</label>
                         {% endif %}
                         
                         {% if log[1]["Log"]["ID"] == 62 %}
                             <h3>Bitacora Espacios</h3>
-                            <label>Espacio = {{log[1]["IDs"][0]}}</label><br>
+                            <label>Espacio = {{trans[log[1]["IDs"][0]]}}</label><br>
                             <label>Comentario = {{log[1]["Log"]["Comment"]}}</label>
                         {% endif %}
+                        
+                        <br>
+                        {% if log[1]["Log"]["ID"] != 9 and log[1]["Log"]["ID"] != 10 %}
+                        <h3>Plantas Afectadas: </h3>
+                            {% for p in log[0] %}
+                            <label>{{p}}</label>
+                            {% endfor %}
+                            <br><br>
+                        {% endif %}
+                        
                         <hr>
-
+                    </div>
                     {% endfor %}
                 </div>
             {% endfor %}

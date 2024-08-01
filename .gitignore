@@ -5,3 +5,5 @@ a.json
 depot.json
 *.txt
 test.py
+*.env
+*.json

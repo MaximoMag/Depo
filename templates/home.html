@@ -3,6 +3,11 @@
     <head>
         <title>Bienvenido {{user}}</title>
         <label>Bienvenido {{user}}</label><br><hr>
+        {% with mes = get_flashed_messages() %}
+        {% if mes %}
+        <h3>{{mes[0]}}</h3><br>
+        {% endif %}
+        {% endwith %}
     </head>
     <body>
         <label for="{{cant_plantas}}">Cantidad de plantas: {{cant_plantas}}</label>
@@ -44,13 +49,13 @@
                 <option name="Modificar">Modificar</option>
             </select>
             <input type="submit" value="Registrar actividad">
-        <hr>
-            <button type="submit" name="bit_p">Ver Bitacora</button>
+            <hr>
+            <button type="submit" name="bit_p">Ver Bitacora</button><br>
+        </form>
             <button onclick="document.location='{{add_p}}'">Añadir planta</button><br>
             <button onclick="document.location='{{config}}'">Configuracion</button><br>
             <button onclick="document.location='{{hist_stock}}'">Historial stock</button><br>
             <button onclick="document.location='{{hist_riego}}'">Historial riegos</button><br>
-        </form>
         
 
     </body>
