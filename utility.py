@@ -161,12 +161,7 @@ def add_log(file:str,logs:list[dict]):
 def add_log_fbd(db,logs:list[dict]):
     db.reference(f"/Logs").push(logs)
 
-<<<<<<< HEAD
 def mod_plant(file:str,plants:list[dict],sube:str=None,estadio:str=None,size:str=None,locations:list=[],var_locations:list=[]):
-=======
-def mod_plant(file:str,plants:list[dict],sube:str=None,estadio:str=None,size:str=None):
-    #TODO update method based in fbd method
->>>>>>> 25dca6ce1954fe133ef8d9ec7a5b08d9dd29daca
     a = read_json(file)
     
     if sube is not None:
@@ -203,18 +198,10 @@ def mod_plant_fbd(db,plantas:list[dict],sube:str=None,estadio:str=None,size:str=
             old = ref.get()
             ref.set(old)
             db.reference(f"/Variedades/{var_locations[i]}/Individuos/{p_var[1]}").update({"Loc":sube})
-<<<<<<< HEAD
     else:
         for i in range(len(plantas)):
             if estadio is not None:db.reference(f"/Espacios/{locations[i][0]}/Subespacios/{locations[i][1]}/Individuos/{locations[i][2]}").update({"Est":estadio})
             if size is not None:db.reference(f"/Espacios/{locations[i][0]}/Subespacios/{locations[i][1]}/Individuos/{locations[i][2]}").update({"Tam":size})
-=======
-
-
-    for i in range(len(plantas)):
-        if estadio is not None:db.reference(f"/Espacios/{locations[i][0]}/Subespacios/{locations[i][1]}/Individuos/{locations[i][2]}").update({"Est":estadio})
-        if size is not None:db.reference(f"/Espacios/{locations[i][0]}/Subespacios/{locations[i][1]}/Individuos/{locations[i][2]}").update({"Tam":size})
->>>>>>> 25dca6ce1954fe133ef8d9ec7a5b08d9dd29daca
     
 def delete(file:str,type:str,id:int=None,type2:str=None,idx2:int=None):
     a = read_json(file)
