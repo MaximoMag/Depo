@@ -175,7 +175,7 @@ def mod_plant(file:str,plants:list[dict],sube:str=None,estadio:str=None,size:str
             a["Variedades"][var_locations[i]]["Individuos"][p_var[1]]["Loc"] = sube
     else:
         for i in range(len(plants)):
-            if estadio is not None:a["Espacios"][locations[i][0]]["Subespacios"][locations[i][1]]["Invididuos"][locations[i][2]]["Est"] = estadio
+            if estadio is not None:a["Espacios"][locations[i][0]]["Subespacios"][locations[i][1]]["Invididuos"][locations[i][2]]["Estadio"] = estadio
             if size is not None:a["Espacios"][locations[i][0]]["Subespacios"][locations[i][1]]["Invididuos"][locations[i][2]]["Tam"] = size
     
     with open(file=file,mode="w",encoding="UTF-8") as f:
@@ -191,16 +191,16 @@ def mod_plant_fbd(db,plantas:list[dict],sube:str=None,estadio:str=None,size:str=
         old += plantas
         new_loc_ref.set(old)
 
-        for i in range(plantas):
+        for i in range(len(plantas)):
             p_var = get_var_id(plantas[i]["ID"])
             ref = db.reference(f"/Espacios/{locations[i][0]}/Subespacios/{locations[i][1]}/Individuos/")
-            ref.child(locations[i][2]).delete()
             old = ref.get()
+            old.pop(locations[i][2])
             ref.set(old)
             db.reference(f"/Variedades/{var_locations[i]}/Individuos/{p_var[1]}").update({"Loc":sube})
     else:
         for i in range(len(plantas)):
-            if estadio is not None:db.reference(f"/Espacios/{locations[i][0]}/Subespacios/{locations[i][1]}/Individuos/{locations[i][2]}").update({"Est":estadio})
+            if estadio is not None:db.reference(f"/Espacios/{locations[i][0]}/Subespacios/{locations[i][1]}/Individuos/{locations[i][2]}").update({"Estadio":estadio})
             if size is not None:db.reference(f"/Espacios/{locations[i][0]}/Subespacios/{locations[i][1]}/Individuos/{locations[i][2]}").update({"Tam":size})
     
 def delete(file:str,type:str,id:int=None,type2:str=None,idx2:int=None):

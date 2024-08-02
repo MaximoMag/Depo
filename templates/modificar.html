@@ -3,12 +3,14 @@
     <head>
         {% if mode == 0 %}
         <title>Modificar Plantas</title>
-        <label>Modificar Plantas</label><br><hr>
+        <label>Modificar Plantas</label>
         {% endif %}
         {% if mode == 1 %}
         <title>Modificar Espacios</title>
-        <label>Modificar Espacios</label><br><hr>
+        <label>Modificar Espacios</label>
         {% endif %}
+        <button onclick="document.location='{{home}}'">Home</button>
+        <br><hr>
     </head>
     <body>
         <script src="static/script.js"></script>

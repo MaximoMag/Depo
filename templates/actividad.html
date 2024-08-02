@@ -37,6 +37,7 @@
         <title>Registar Actividad - Bitacora Espacios</title>
         <label>Registar Actividad - Bitacora Espacios</label>
         {% endif %}
+        <button onclick="document.location='{{home}}'">Home</button>
         <br>
         <hr>
 	</head>
@@ -118,7 +119,7 @@
                     <select name="{{planta['ID']}}">
                         {% for esp in espacios if esp["Existe"] %}
                             {% for sube in esp["Subespacios"] if sube["Existe"] and not sube["Clones"] %}
-                                <option value="{{sube['ID']}}">{{sube["Nombre"}}</option>
+                                <option value="{{sube['ID']}}">{{sube["Nombre"]}}</option>
                             {% endfor %}
                         {% endfor %}
                     </select>
