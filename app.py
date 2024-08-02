@@ -168,6 +168,149 @@ class Depo():
                 
         pass
     
+    def poda(self,form,ids:list):
+        tipo_poda = form["metodo"]
+        fecha = form["fecha"]
+        comment = form["comment"]
+        log = {"Fecha":fecha,"IDs":ids,"Log":{"ID":4,"Comment":comment,"Tipo":tipo_poda}}
+        utility.add_log(self.file,[log]) if self.debug else utility.add_log_fbd(db,[log])
+        
+        if tipo_poda == "Poda de esquejes":
+            self.fecha_esquejes = fecha
+            return flask.redirect(flask.url_for("clone"))
+
+    def clone(self):
+        if "username" not in flask.session:
+            return flask.redirect(flask.url_for('login'))
+
+        if flask.request.method == "POST":
+            clones = flask.request.form.getlist("clones")
+            subes = flask.request.form.getlist("sube")
+            tams = flask.request.form.getlist("tam")
+            vars = flask.request.form.getlist("var")
+            cambio_por_sube = {sube : [] for sube in subes}
+            cambio_por_sube_yvar = {}
+
+            for i in range(len(subes)):
+                id_e = utility.get_loc_idx(subes[i])
+                var = vars[i]
+                for j in range(len(self.variedades)):
+                    if self.variedades[j]["Nombre"] == var:
+                        for _ in range(int(clones[i])):
+                            clon_i = {"ID":None,"Estadio":"Clon","Tam":tams[i]}
+                            id_n = len(self.variedades[j]["Individuos"])
+                            clon_i["ID"] = var + "-" + str(id_n)
+                            self.variedades[j]["Individuos"].append(clon_i)
+                            self.espacios[id_e[0]]["Subespacios"][id_e[1]]["Individuos"].append(clon_i)
+                            if subes[i] in cambio_por_sube_yvar.keys(): 
+                                if j in cambio_por_sube_yvar[subes[i]].keys():cambio_por_sube_yvar[subes[i]][j].append(clon_i)
+                                else:cambio_por_sube_yvar[subes[i]][j]= [clon_i]
+                            else:  cambio_por_sube_yvar[subes[i]] = {j:[clon_i]}
+
+
+                            cambio_por_sube[subes[i]].append(clon_i["ID"])
+                            utility.add_plant(self.file,id_e[0],id_e[1],j,clon_i) if self.debug else None
+                        break
+            logs = []
+            for sube in cambio_por_sube.keys(): 
+                log = {"Fecha":self.fecha_esquejes,"IDs":cambio_por_sube[sube],"Log":{"ID":9,"Loc":sube}}
+                logs.append(log)
+
+            if not self.debug:
+                for key in cambio_por_sube_yvar:
+                    esp = utility.get_loc_idx(key)
+                    for var in cambio_por_sube_yvar[key]: utility.add_planta_fdb(db,esp[0],esp[1],var,cambio_por_sube_yvar[key][var])
+
+            self.update_db()
+
+            if logs:
+                if self.debug: utility.add_log(self.file,logs)
+                else: utility.add_log_fbd(db,logs)
+
+            return flask.redirect(flask.url_for("home"))
+        
+        vars = []
+        for planta in self.selected_p: 
+            if utility.get_var_id(planta["ID"]) not in vars: vars.append(utility.get_var_id(planta["ID"])[0])
+    
+        return flask.render_template("clone.html",vars=vars,fecha=self.fecha_esquejes,tams=self.tams,espacios=self.espacios)
+
+    def transplant(self,form,plantas:list):
+        fechas = form.getlist("fecha")
+        tams = form.getlist("tam")
+        fechag = form.get("fechaglob",-1)
+        tamg = form.get("tamglob",-1)
+
+        cambios_por_fecha = {}
+        cambios_glob = []
+
+        for i in range(len(plantas)):
+            planta = plantas[i]
+            if form.get(planta["ID"],-1) != -1: cambios_glob.append(planta)
+            else:
+                if fechas[i] in cambios_por_fecha.keys():
+                    if tams[i] in cambios_por_fecha[fechas[i]].keys():
+                        cambios_por_fecha[fechas[i]][tams[i]].append(planta)
+                    else:
+                        cambios_por_fecha[fechas[i]][tams[i]] = [planta]
+                else:
+                    cambios_por_fecha[fechas[i]] = {tams[i] : [planta]}
+
+        logs = []
+        if cambios_glob: 
+           utility.mod_plant(self.file,cambios_glob,size=tamg) if self.debug else utility.mod_plant_fbd(db,cambios_glob,size=tamg)
+           #TODO test
+           clones = []
+           for planta in plantas:
+                p_var = utility.get_var_id(planta["ID"])
+                loc_id = None
+                for var in self.variedades:
+                    if var["Nombre"] == p_var[0]: loc_id  = utility.get_loc_idx(var['Individuos'][p_var[1]]["Loc"])
+                if self.espacios[loc_id[0]]["Subespacios"][loc_id[1]]["Clones"]: clones.append(planta)
+                
+           if len(clones) > 0: 
+               log = {"Fecha":fechag,"IDs":[clon["ID"] for clon in clones],"Log":{"ID":10,"Est":self.ests[0]}}
+               logs.append(log)
+               utility.mod_plant(self.file,clones,estadio=self.ests[0]) if self.debug else utility.mod_plant_fbd(db,clones,estadio=self.ests[0])
+
+           log = {"Fecha":fechag,"IDs":[planta["ID"] for planta in plantas],"Log":{"ID":5,"Tam":tamg}}
+           logs.append(log)
+ 
+
+        for fecha in cambios_por_fecha.keys():
+            for tam in cambios_por_fecha[fecha].keys():
+                utility.mod_plant(self.file,plantas,size=tam) if self.debug else utility.mod_plant_fbd(db,plantas,size=tam)
+                clones = []
+                for planta in plantas:
+                    p_var = utility.get_var_id(planta["ID"])
+                    loc_id = None
+                    for var in self.variedades:
+                        if var["Nombre"] == p_var[0]: loc_id  = utility.get_loc_idx(var['Individuos'][p_var[1]]["Loc"])
+                    if self.espacios[loc_id[0]]["Subespacios"][loc_id[1]]["Clones"]: clones.append(planta)
+                        
+                
+                if len(clones) > 0:
+                    log = {"Fecha":fecha,"IDs":[clon["ID"] for clon in clones],"Log":{"ID":10,"Est":self.ests[0]}}
+                    logs.append(log)
+                    utility.mod_plant(self.file,clones,estadio=self.ests[0]) if self.debug else utility.mod_plant_fbd(db,clones,estadio=self.ests[0])
+                log = {"Fecha":fecha,"IDs":[planta["ID"] for planta in plantas],"Log":{"ID":5,"Tam":tam}}
+                logs.append(log)
+
+        if logs:
+            if self.debug: utility.add_log(self.file,logs)
+            else: utility.add_log_fbd(db,logs)
+
+        self.update_db()
+
+    def bitacora(self,modo,form,ids):
+        fecha = form["fecha"]
+        comment = form["comment"]
+
+        if modo == 61:ids = [form["sube"]]
+        elif modo == 62: ids = [form["esp"]]
+        log = {"Fecha":fecha,"IDs":ids,"Log":{"ID":modo,"Comment":comment}}
+        utility.add_log(self.file,[log]) if self.debug else utility.add_log_fbd(db,[log])
+#----------------------------------------------ADD-----------------------------------------------------------------------------------------------#
     def add_p(self): 
         if "username" not in flask.session:
             return flask.redirect(flask.url_for('login'))
@@ -224,7 +367,7 @@ class Depo():
             return flask.redirect(flask.url_for("home"))
 
         return flask.render_template("add_p.html",espacios=self.espacios,variedades=self.variedades,tams=self.tams,ests=self.ests)
-
+#---------------------------------------------MOD-----------------------------------------------------------------------------------------------#
     def mod(self):
         if "username" not in flask.session:
             return flask.redirect(flask.url_for('login'))
@@ -390,152 +533,6 @@ class Depo():
                 subes.append(s)
 
             utility.add_sube(self.file,esp_id,subes) if self.debug else utility.add_sube_fdb(db,esp_id,subes)
-
-    def transplant(self,form,plantas:list):
-        fechas = form.getlist("fecha")
-        tams = form.getlist("tam")
-        fechag = form.get("fechaglob",-1)
-        tamg = form.get("tamglob",-1)
-
-        cambios_por_fecha = {}
-        cambios_glob = []
-
-        for i in range(len(plantas)):
-            planta = plantas[i]
-            if form.get(planta["ID"],-1) != -1: cambios_glob.append(planta)
-            else:
-                if fechas[i] in cambios_por_fecha.keys():
-                    if tams[i] in cambios_por_fecha[fechas[i]].keys():
-                        cambios_por_fecha[fechas[i]][tams[i]].append(planta)
-                    else:
-                        cambios_por_fecha[fechas[i]][tams[i]] = [planta]
-                else:
-                    cambios_por_fecha[fechas[i]] = {tams[i] : [planta]}
-
-        logs = []
-        if cambios_glob: 
-           utility.mod_plant(self.file,cambios_glob,size=tamg) if self.debug else utility.mod_plant_fbd(db,cambios_glob,size=tamg)
-           #TODO test
-           clones = []
-           for planta in plantas:
-                p_var = utility.get_var_id(planta["ID"])
-                loc_id = None
-                for var in self.variedades:
-                    if var["Nombre"] == p_var[0]: loc_id  = utility.get_loc_idx(var['Individuos'][p_var[1]]["Loc"])
-                if self.espacios[loc_id[0]]["Subespacios"][loc_id[1]]["Clones"]: clones.append(planta)
-                
-           if len(clones) > 0: 
-               log = {"Fecha":fechag,"IDs":[clon["ID"] for clon in clones],"Log":{"ID":10,"Est":self.ests[0]}}
-               logs.append(log)
-               utility.mod_plant(self.file,clones,estadio=self.ests[0]) if self.debug else utility.mod_plant_fbd(db,clones,estadio=self.ests[0])
-
-           log = {"Fecha":fechag,"IDs":[planta["ID"] for planta in plantas],"Log":{"ID":5,"Tam":tamg}}
-           logs.append(log)
- 
-
-        for fecha in cambios_por_fecha.keys():
-            for tam in cambios_por_fecha[fecha].keys():
-                utility.mod_plant(self.file,plantas,size=tam) if self.debug else utility.mod_plant_fbd(db,plantas,size=tam)
-                clones = []
-                for planta in plantas:
-                    p_var = utility.get_var_id(planta["ID"])
-                    loc_id = None
-                    for var in self.variedades:
-                        if var["Nombre"] == p_var[0]: loc_id  = utility.get_loc_idx(var['Individuos'][p_var[1]]["Loc"])
-                    if self.espacios[loc_id[0]]["Subespacios"][loc_id[1]]["Clones"]: clones.append(planta)
-                        
-                
-                if len(clones) > 0:
-                    log = {"Fecha":fecha,"IDs":[clon["ID"] for clon in clones],"Log":{"ID":10,"Est":self.ests[0]}}
-                    logs.append(log)
-                    utility.mod_plant(self.file,clones,estadio=self.ests[0]) if self.debug else utility.mod_plant_fbd(db,clones,estadio=self.ests[0])
-                log = {"Fecha":fecha,"IDs":[planta["ID"] for planta in plantas],"Log":{"ID":5,"Tam":tam}}
-                logs.append(log)
-
-        if logs:
-            if self.debug: utility.add_log(self.file,logs)
-            else: utility.add_log_fbd(db,logs)
-
-        self.update_db()
-    
-    def poda(self,form,ids:list):
-        tipo_poda = form["metodo"]
-        fecha = form["fecha"]
-        comment = form["comment"]
-        log = {"Fecha":fecha,"IDs":ids,"Log":{"ID":4,"Comment":comment,"Tipo":tipo_poda}}
-        utility.add_log(self.file,[log]) if self.debug else utility.add_log_fbd(db,[log])
-        
-        if tipo_poda == "Poda de esquejes":
-            self.fecha_esquejes = fecha
-            return flask.redirect(flask.url_for("clone"))
-
-    def bitacora(self,modo,form,ids):
-        fecha = form["fecha"]
-        comment = form["comment"]
-
-        if modo == 61:ids = [form["sube"]]
-        elif modo == 62: ids = [form["esp"]]
-        log = {"Fecha":fecha,"IDs":ids,"Log":{"ID":modo,"Comment":comment}}
-        utility.add_log(self.file,[log]) if self.debug else utility.add_log_fbd(db,[log])
-
-    def clone(self):
-        if "username" not in flask.session:
-            return flask.redirect(flask.url_for('login'))
-
-        if flask.request.method == "POST":
-            clones = flask.request.form.getlist("clones")
-            subes = flask.request.form.getlist("sube")
-            tams = flask.request.form.getlist("tam")
-            vars = flask.request.form.getlist("var")
-            cambio_por_sube = {sube : [] for sube in subes}
-            cambio_por_sube_yvar = {}
-
-            for i in range(len(subes)):
-                id_e = utility.get_loc_idx(subes[i])
-                var = vars[i]
-                for j in range(len(self.variedades)):
-                    if self.variedades[j]["Nombre"] == var:
-                        for _ in range(int(clones[i])):
-                            clon_i = {"ID":None,"Estadio":"Clon","Tam":tams[i]}
-                            id_n = len(self.variedades[j]["Individuos"])
-                            clon_i["ID"] = var + "-" + str(id_n)
-                            self.variedades[j]["Individuos"].append(clon_i)
-                            self.espacios[id_e[0]]["Subespacios"][id_e[1]]["Individuos"].append(clon_i)
-                            if subes[i] in cambio_por_sube_yvar.keys(): 
-                                if j in cambio_por_sube_yvar[subes[i]].keys():cambio_por_sube_yvar[subes[i]][j].append(clon_i)
-                                else:cambio_por_sube_yvar[subes[i]][j]= [clon_i]
-                            else:  cambio_por_sube_yvar[subes[i]] = {j:[clon_i]}
-
-
-                            cambio_por_sube[subes[i]].append(clon_i["ID"])
-                            utility.add_plant(self.file,id_e[0],id_e[1],j,clon_i) if self.debug else None
-                        break
-            logs = []
-            for sube in cambio_por_sube.keys(): 
-                log = {"Fecha":self.fecha_esquejes,"IDs":cambio_por_sube[sube],"Log":{"ID":9,"Loc":sube}}
-                logs.append(log)
-
-            if not self.debug:
-                for key in cambio_por_sube_yvar:
-                    esp = utility.get_loc_idx(key)
-                    for var in cambio_por_sube_yvar[key]: utility.add_planta_fdb(db,esp[0],esp[1],var,cambio_por_sube_yvar[key][var])
-
-            self.update_db()
-
-            if logs:
-                if self.debug: utility.add_log(self.file,logs)
-                else: utility.add_log_fbd(db,logs)
-
-            return flask.redirect(flask.url_for("home"))
-        
-
-
-
-        vars = []
-        for planta in self.selected_p: 
-            if utility.get_var_id(planta["ID"]) not in vars: vars.append(utility.get_var_id(planta["ID"])[0])
-    
-        return flask.render_template("clone.html",vars=vars,fecha=self.fecha_esquejes,tams=self.tams,espacios=self.espacios)
 #-------------------------------------------LOGS---------------------------------------------------------------------------------------------------#
     def show_log(self):
         if "username" not in flask.session:
