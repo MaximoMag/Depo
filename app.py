@@ -241,7 +241,7 @@ class Depo():
             if utility.get_var_id(planta["ID"]) not in vars: vars.append(utility.get_var_id(planta["ID"])[0])
     
         return flask.render_template("clone.html",vars=vars,fecha=self.fecha_esquejes,tams=self.tams,espacios=self.espacios)
-    
+
     def transplant(self,form,plantas:list):
         fechas = form.getlist("fecha")
         tams = form.getlist("tam")
@@ -532,6 +532,52 @@ class Depo():
         utility.mod_plant(self.file,plantas,sube,est,tam,locations,var_location) if self.debug else utility.mod_plant_fbd(db,plantas,sube,est,tam,locations,var_location)
 
         if clones: return clones_
+
+    def modificar_planta(self,plantas,sube:str=None,est:str=None,tam:str=None,clones:bool=False):
+        tmp_vars = {}
+        locations = []
+        var_location = []
+        clones_ = []
+
+        for i in range(len(plantas)):
+            planta = plantas[i]
+            p_var = utility.get_var_id(planta['ID'])
+            p_var_id = -1
+            if p_var[0] in tmp_vars.keys(): p_var_id = tmp_vars[p_var[0]]
+            else:
+                for i in range(len(self.variedades)):
+                    var = self.variedades[i]
+                    if var["Nombre"] == p_var[0]: p_var_id = tmp_vars[var['Nombre']] = i
+
+
+            p_curr_loc = utility.get_loc_idx(self.variedades[p_var_id]["Individuos"][p_var[1]]["Loc"])
+            
+            if self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Clones"] and clones: clones_.append(planta)
+
+            for i in range(len(self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Individuos"])):
+                indiv = self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Individuos"][i]
+                if indiv['ID'] == planta["ID"]: p_curr_loc.append(i)
+
+
+            locations.append(p_curr_loc)
+            
+            new_loc_id = utility.get_loc_idx(sube) if sube is not None else []
+            if len(new_loc_id) == 2 and new_loc_id[0] != p_curr_loc[0] and new_loc_id[1] != p_curr_loc[1]:
+                if est is not None: plantas[i]["Estadio"] = est
+                if tam is not None: plantas[i]["Tam"] = tam
+
+                var_location.append(p_var_id)
+                self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Individuos"].pop(p_curr_loc[2])
+                self.espacios[new_loc_id[0]]["Subespacios"][new_loc_id[1]]["Individuos"].append(planta)
+                self.variedades[p_var_id]["Individuos"][p_var[1]]["Loc"] = sube
+            
+            elif est is not None:self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Individuos"][p_curr_loc[2]]["Estadio"] = est
+            
+            elif tam is not None:self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Individuos"][p_curr_loc[2]]["Tam"] = tam
+
+        utility.mod_plant(self.file,plantas,sube,est,tam,locations,var_location) if self.debug else utility.mod_plant_fbd(db,plantas,sube,est,tam,locations,var_location)
+
+        if clones: return clones
 
     def mod_esp(self,form,sel_esp,delete,del_sube):
         if delete != -1: 
