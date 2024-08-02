@@ -97,8 +97,8 @@
                 {% for planta in plantas %}
                 <div>
                     <select name="planta" hidden><option>{{planta['ID']}}</option></select>
-                    <label for="fecha">Fecha: </label><input type="date" name="fecha">
-                    <label for = "{{planta['id']}}">{{planta['ID']}} en {{planta['Tam']}}</label><!--Podria mostrar a que tamaño va a ir-->
+                    <label>Fecha: </label><input type="date" name="fecha">
+                    <label>{{planta['ID']}} en {{planta['Tam']}}</label>
                     <select name="tam">
                             {% for tam in tams %}    
 
@@ -113,6 +113,16 @@
                             
                             {% set ns.found = false %}
                     </select>
+                    {% if planta["Estadio"] == "Clon" %}
+                    <label>Mover a : </label>
+                    <select name="{{planta['ID']}}">
+                        {% for esp in espacios if esp["Existe"] %}
+                            {% for sube in esp["Subespacios"] if sube["Existe"] and not sube["Clones"] %}
+                                <option value="{{sube['ID']}}">{{sube["Nombre"}}</option>
+                            {% endfor %}
+                        {% endfor %}
+                    </select>
+                    {% endif %}
                     <label>Transplante Global </label><input type="checkbox" name="{{planta['ID']}}">
                 </div>
                 {% endfor %}
