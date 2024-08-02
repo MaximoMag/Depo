@@ -161,94 +161,48 @@ def add_log(file:str,logs:list[dict]):
 def add_log_fbd(db,logs:list[dict]):
     db.reference(f"/Logs").push(logs)
 
-def mod_plant(file:str,plants:list[dict],sube:str=None,estadio:str=None,size:str=None):
+def mod_plant(file:str,plants:list[dict],sube:str=None,estadio:str=None,size:str=None,locations:list=[],var_locations:list=[]):
     a = read_json(file)
     
-    for plant in plants:
-        curr_loc_id = None 
-        var_idx = get_var_id(plant["ID"])
-        var_j = -1
-        for i in range(len(a["Variedades"])):
-            var = a["Variedades"][i]
-            if var["Nombre"] == var_idx[0]:
-                var_j = i
-                curr_loc_id = var["Individuos"][var_idx[1]]["Loc"]
-                break
-            
-            
-        loc_id = get_loc_idx(curr_loc_id)
-        curr_sube = a["Espacios"][loc_id[0]]["Subespacios"][loc_id[1]]  
-        plant_idx = -1
-        for i in range(len(curr_sube["Individuos"])):
-            if curr_sube["Individuos"][i]["ID"] == plant["ID"]:
-                plant_idx = i
-                break
-            
-        if sube is not None and sube != curr_sube["ID"]:
-            if estadio is not None: plant["Estadio"] = estadio
-            if size is not None: plant["Tam"] = size
+    if sube is not None:
+        new_loc_id = get_loc_idx(sube)
+        old = a["Espacios"][new_loc_id[0]]["Subespacios"][new_loc_id[1]]["Invididuos"]
+        a["Espacios"][new_loc_id[0]]["Subespacios"][new_loc_id[1]]["Invididuos"] = old + plants
 
-            a["Espacios"][loc_id[0]]["Subespacios"][loc_id[1]]["Individuos"].pop(plant_idx)
-            new_loc_id = get_loc_idx(sube)
-            a["Espacios"][new_loc_id[0]]["Subespacios"][new_loc_id[1]]["Individuos"].append(plant)
-            a["Variedades"][var_j]["Individuos"][var_idx[1]]["Loc"] = sube
-
-
-        elif estadio is not None:
-            a["Espacios"][loc_id[0]]["Subespacios"][loc_id[1]]["Individuos"][plant_idx]["Estadio"] = estadio
-
-        elif size is not None:
-            a["Espacios"][loc_id[0]]["Subespacios"][loc_id[1]]["Individuos"][plant_idx]["Tam"] = size
-
-
+        for i in range(len(plants)):
+            p_var = get_var_id(plants[i]["ID"])
+            a["Espacios"][locations[i][0]]["Subespacios"][locations[i][1]]["Invididuos"].pop(locations[i][2])
+            a["Variedades"][var_locations[i]]["Individuos"][p_var[1]]["Loc"] = sube
+    else:
+        for i in range(len(plants)):
+            if estadio is not None:a["Espacios"][locations[i][0]]["Subespacios"][locations[i][1]]["Invididuos"][locations[i][2]]["Est"] = estadio
+            if size is not None:a["Espacios"][locations[i][0]]["Subespacios"][locations[i][1]]["Invididuos"][locations[i][2]]["Tam"] = size
+    
     with open(file=file,mode="w",encoding="UTF-8") as f:
         json.dump(a,f,indent=1,ensure_ascii=False)
         f.close()
 
-def mod_plant_fbd(db,plantas:list[dict],sube:str=None,estadio:str=None,size:str=None):
-    var_ref = db.reference("/Variedades").get()
-    
-    for plant in plantas:
-        curr_loc_id = None 
-        var_idx = get_var_id(plant["ID"])
-        var_j = -1
-        for i in range(len(var_ref)):
-            var = var_ref[i]
-            if var["Nombre"] == var_idx[0]:
-                var_j = i
-                curr_loc_id = var["Individuos"][var_idx[1]]["Loc"]
-                break
-    
-
-    loc_id = get_loc_idx(curr_loc_id)
-    plant_idx = -1
-    curr_sube = db.reference(f"/Espacios/{loc_id[0]}/Subespacios/{loc_id[1]}/Individuos").get()
-    for i in range(len(curr_sube)):
-        if curr_sube[i]["ID"] == plant["ID"]:
-            plant_idx = i
-            break
-    
-    if sube is not None and sube != curr_loc_id:
-        if estadio is not None: plant["Estadio"] = estadio
-        if size is not None: plant["Tam"] = size
-
-        db.reference(f"/Espacios/{loc_id[0]}/Subespacios/{loc_id[1]}/Individuos/{plant_idx}").delete()
-        
+def mod_plant_fbd(db,plantas:list[dict],sube:str=None,estadio:str=None,size:str=None,locations:list=[],var_locations:list=[]):
+    if sube is not None:
         new_loc_id = get_loc_idx(sube)
         new_loc_ref = db.reference(f"/Espacios/{new_loc_id[0]}/Subespacios/{new_loc_id[1]}/Individuos/")
-        
-        old = new_loc_ref.get() 
-        if old is None:old = []
-        
-        new_loc_ref.set(old + [plant])
-        db.reference(f"/Variedades/{var_j}/Individuos/{var_idx[1]}").update({"Loc":sube})
+        old = new_loc_ref.get()
+        old = [] if old is None else old
+        old += plantas
+        new_loc_ref.set(old)
 
-    elif estadio is not None:
-        db.reference(f"/Espacios/{loc_id[0]}/Subespacios/{loc_id[1]}/Individuos/{plant_idx}").update({"Estadio":estadio})
-        
-    elif size is not None:
-        db.reference(f"/Espacios/{loc_id[0]}/Subespacios/{loc_id[1]}/Individuos/{plant_idx}").update({"Tam":size})    
-        
+        for i in range(plantas):
+            p_var = get_var_id(plantas[i]["ID"])
+            ref = db.reference(f"/Espacios/{locations[i][0]}/Subespacios/{locations[i][1]}/Individuos/")
+            ref.child(locations[i][2]).delete()
+            old = ref.get()
+            ref.set(old)
+            db.reference(f"/Variedades/{var_locations[i]}/Individuos/{p_var[1]}").update({"Loc":sube})
+    else:
+        for i in range(len(plantas)):
+            if estadio is not None:db.reference(f"/Espacios/{locations[i][0]}/Subespacios/{locations[i][1]}/Individuos/{locations[i][2]}").update({"Est":estadio})
+            if size is not None:db.reference(f"/Espacios/{locations[i][0]}/Subespacios/{locations[i][1]}/Individuos/{locations[i][2]}").update({"Tam":size})
+    
 def delete(file:str,type:str,id:int=None,type2:str=None,idx2:int=None):
     a = read_json(file)
 
