@@ -26,10 +26,10 @@
                 <div>
                     <label>{{planta["ID"]}}</label><br>
                     <select name="planta" hidden><option>{{planta["ID"]}}</option></select>
-                    <label for="fecha">Fecha: </label><input type="date" id="fecha" name="fecha">
+                    <label for="fecha">Fecha: </label><input type="date" value="{{today}}" name="fecha">
                     <label>Subespacio: </label>
                     <select name="sube">
-                        <option selected>Seleccionar</option>
+                        <option >Seleccionar</option>
                         {% for esp in espacios if esp["Existe"] %}
                             {% for sube in esp["Subespacios"] if sube["Existe"] and not sube["Clones"] %}
                                 <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube['Nombre']}}</option>
@@ -38,7 +38,7 @@
                     </select>
                     <label>Estadio: </label>
                     <select name="Estadio">
-                        <option selected>Seleccionar</option>
+                        <option >Seleccionar</option>
                         {% for est in ests %}
                         <option name="{{est}}">{{est}}</option>
                         {% endfor %}
@@ -49,10 +49,10 @@
             </div>
             <div>
                 <label>Modificacion global</label><br>
-                <label for="fechag">Fecha: </label><input type="date" id="fechag" name="fechag" ><br>
+                <label for="fechag">Fecha: </label><input type="date" value="{{today}}" name="fechag" ><br>
                 <label>Subespacio: </label>
                 <select name="subeglob">
-                    <option selected>Seleccionar</option>
+                    <option>Seleccionar</option>
                     {% for esp in espacios if esp["Existe"] %}
                             {% for sube in esp["Subespacios"] if sube["Existe"] and not sube["Clones"] %}
                                 <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube['Nombre']}}</option>
@@ -97,9 +97,9 @@
                     {% endfor %}
 
                     {% if p.plantas is sameas dp.d_plantas %}
-                        <button type="submit" name="del_sube" value="{{sube['ID']}}">Eliminar Subespacio</button><br>
+                        <button type="submit" name="del_sube" value="{{sube['ID']}}">Eliminar Subespacio</button><
                     {% endif %}
-
+                    <br>
                 {% endfor %}
             </div>
             {% endif %}

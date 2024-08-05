@@ -36,7 +36,7 @@
         <label>Configuracion Clones</label>
         {% endif %}
 
-        <button onclick="document.location='/home'">Home</button>
+        <button onclick="document.location='{{home}}'">Home</button>
         <br><hr>
 	</head>
 	<body>
@@ -61,7 +61,7 @@
         <form method="POST">
         <label>Espacios Actuales</label><br>
         {% for esp in espacios if esp["Existe"] %}
-            <label>{{esp['Nombre']}}</label> <button type="submit" name="edit" value="{{esp['ID']}}">Edit</button>
+            <label>{{esp['Nombre']}}</label> <button type="submit" name="edit" value="{{esp['ID']}}">Edit</button><br>
         {% endfor %}
         </form>
         
@@ -170,7 +170,7 @@
         </form>
         {% endif %}
         
-        
+        <label>Cargar los tamaños de menor a mayor</label>
         <form method="POST">
             <div id="tam_0">
                 <label>Tamaño: </label><input type="text" name="tam">
@@ -193,7 +193,7 @@
         <hr>
         </form>
         {% endif %}
-
+        <label>No cargar el estadio "CLON" este se genera automaticamente al hacer un poda de esquejes y clonar las plantas seleccionadas</label><br>
         <form method="POST">
             <div id="est_0" name="tam_0">
                 <label>Estadio: </label><input type="text" name="est">

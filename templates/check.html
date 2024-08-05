@@ -40,10 +40,10 @@
                 
                 
                 {% if log["Log"]["ID"] <= 1 %} <!--EXTRAS-->
-                <label>Cantidad = {{log["Log"]["Cantidad"]}} L PH = {{log["Log"]["PH"]}} EC = {{log["Log"]["PH"]}} </label><br>
+                <label>Cantidad = {{log["Log"]["Cantidad"]}} L PH = {{log["Log"]["PH"]}} EC = {{log["Log"]["EC"]}} </label><br>
                 <label>Productos: </label>    
                     {% for prod in log["Log"]["Prods"] %}
-                        <label>{{prod[0]}} - Medida MlxL {{prod[1]}}</label>
+                        <label>{{prod[0]}} - ML x L: {{prod[1]}}</label>
                     {% endfor %} 
                 {% endif %}
                 <br>
@@ -53,8 +53,7 @@
                     <label>{{id}}</label>
                     {% endfor %}
                 </label>
-            
-            </div>
+            </div><br>
             {% endfor %}
         </div>
         <hr>
@@ -104,7 +103,7 @@
                 {% set st.stock = st.stock - ns.cant %}
                 <label>Stock = {{st.stock}}</label>
                 {% endif %}
-                </div>
+                </div><br>
             {% endfor %}
 
         </div>

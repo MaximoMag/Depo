@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Chequeo Variedades Clonadas</title>
+		<label>Chequeo Variedades Clonadas</label>
+        <button onclick="document.location='{{home}}'">Home</button>
+        <br><hr>
+    </head>
+	<body>
+        {% if empty_vars %}
+            <label>Variedades sin plantas ni clones: </label><br>
+                {% for var in empty_vars %}
+                    <label>{{var}}</label><br>
+                {% endfor %}
+        {% endif %}
+
+        {% if vars_wo_c %}
+            <label>Variedades sin clones, pero si plantas</label><br>
+            {% for var in vars_wo_c %}
+                <label>{{var}}</label><br>
+            {% endfor %}
+        {% endif %}
+        
+        {% if vars_w_c %}
+            <label>Variedades con clones,pero sin plantas</label><br>
+            {% for var in vars_w_c %}
+                <label>{{var}}</label><br>
+            {% endfor %}
+        {% endif %}
+
+        {% if vars %}
+            <label>Variedades con plantas y clones</label><br>
+            {% for var in vars %}
+                <label>{{var}}</label><br>
+            {% endfor %}
+        {% endif %}
+
+	</body>
+</html>
