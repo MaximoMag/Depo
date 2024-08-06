@@ -256,3 +256,9 @@ def create_db(file,base):
         json.dump(base,f,indent=1,ensure_ascii=False)
         f.close()
 
+def reformat_log_date(log:dict) -> None:
+    date = log["Fecha"]
+    y = date[:4]
+    m = date[5:7]
+    d = date[8::]
+    log["Fecha"] = d + "-" + m + "-" + y

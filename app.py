@@ -577,7 +577,9 @@ class Depo():
             log_ref = db.reference("/Logs").get()
             logs = []
             for entry in log_ref:
-                for log in log_ref[entry]:logs.append(log)
+                for log in log_ref[entry]:
+                    utility.reformat_log_date(log)
+                    logs.append(log)
         
         
         logs.sort(key=lambda log: log["Fecha"])
@@ -642,12 +644,14 @@ class Depo():
             log_ref = db.reference("/Logs").get()
             all_logs = []
             for entry in log_ref:
-                for log in log_ref[entry]:all_logs.append(log)
+                for log in log_ref[entry]:
+                    utility.reformat_log_date(log)
+                    all_logs.append(log)
         
         logs = []
         for log in all_logs:
             if (log["Log"]["ID"] in [0,1] ):
-                month = log["Fecha"][5:7]
+                month = log["Fecha"][3:5]
                 if month[0] == "0":
                     month = month[1]
                 if int(month) == act_month:
@@ -684,12 +688,14 @@ class Depo():
             log_ref = db.reference("/Logs").get()
             all_logs = []
             for entry in log_ref:
-                for log in log_ref[entry]:all_logs.append(log)
+                for log in log_ref[entry]:
+                    utility.reformat_log_date(log)
+                    all_logs.append(log)
 
 
         for log in all_logs:
             if (log["Log"]["ID"] in [8,9] ):
-                month = log["Fecha"][5:7]
+                month = log["Fecha"][3:5]
                 if month[0] == "0":
                     month = month[1]
 
@@ -699,10 +705,10 @@ class Depo():
 
                 elif int(month) < act_month:
                     if log["Log"]["ID"] == 9: 
-                        last_count[log["Log"]["Loc"][0]] += len(log["IDs"])
+                        last_count[log["Log"]["Loc"]] += len(log["IDs"])
                         ult_stock_count+=len(log["IDs"])
                     else: 
-                        last_count[log["Log"]["Loc"][0]]-= len(log["IDs"])
+                        last_count[log["Log"]["Loc"]]-= len(log["IDs"])
                         ult_stock_count-=len(log["IDs"])
 
         logs.sort(key=lambda log: log["Fecha"])
