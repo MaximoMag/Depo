@@ -876,7 +876,7 @@ class Depo():
                     self.espacios.append(espacio)
 
                 utility.add_to_db(self.file,espacios) if self.debug else utility.add_to_fdb(db,espacios)
-            #TODO for each var, agregar un seleccionable para elegir el color
+            
             if len(v_names) > 0:
                 nvs = []
                 for i in range(len(v_names)):
