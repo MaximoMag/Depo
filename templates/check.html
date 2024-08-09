@@ -46,7 +46,11 @@
                         <label>{{prod[0]}} - ML x L: {{prod[1]}}</label>
                     {% endfor %} 
                 {% endif %}
+                
                 <br>
+                <label>Entrada añadida por: {{log["BY"]}}</label>                
+                <br>
+
                 <label> <!--PLANTAS-->
                     Plantas Involucradas : 
                     {% for id in log["IDs"] %}
@@ -87,8 +91,11 @@
                         <label>{{id}}</label>
                     {% endfor %}
                 {% endif %}
+                
                 <br>
-            
+                <label>Entrada añadida por: {{log["BY"]}}</label>                
+                <br>
+                    
                 {% set ns = namespace(cant=0) %}
                 {% for p in log["IDs"] %}
                     {% set ns.cant = ns.cant + 1 %}

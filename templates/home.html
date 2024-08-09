@@ -29,8 +29,10 @@
                             <button type="submit" value="{{sube['ID']}}" name="log_s">Añadir Bitacora {{sube["Nombre"]}}</button>
                             {% for planta in sube["Individuos"] if planta["Estadio"] != "Muerta" %}
                             <br>    
-                            <label for = "{{planta['ID']}}">{{planta['ID']}}: {{planta['Tam']}}</label>
+                            {% with var = planta["ID"][:planta["ID"].index("-")] %}
+                            <label style="color: {{colores[var]}}"  for = "{{planta['ID']}}">{{planta['ID']}}: {{planta['Tam']}}</label>
                                 <input type="checkbox" id= "{{planta['ID']}}" name= "{{planta['ID']}}">
+                            {% endwith %}
                             {% endfor %}
                         </div>
                         <hr>

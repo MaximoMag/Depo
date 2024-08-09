@@ -19,12 +19,12 @@
             <select name="modo" hidden><option>{{mode}}</option></select>
 
             {% if mode == 0 %} <!--Modificar Plantas-->
-            <div id="plants">
-                <label>Plantas Seleccionadas: </label><br>
-                <label>Seleccionar Todas</label><input id="tpc" type="checkbox" onclick="checkOtherBoxes(document.getElementById('tpc'),document.getElementById('plants').children)"><hr>
+            <div id="plantas">
+                <h3>Plantas Seleccionadas: </h3>
+                <label>Seleccionar Todas</label><input id="tpc" type="checkbox" onclick="checkOtherBoxes(document.getElementById('tpc'),document.getElementById('plantas').children)" onchange="hide_all_div_children(document.getElementById('plantas'))"><hr>
                 {% for planta in plantas %}
-                <div>
-                    <label>{{planta["ID"]}}</label><br>
+                <div name="div_{{planta['ID']}}">
+                    <label>{{planta["ID"]}}</label>
                     <select name="planta" hidden><option>{{planta["ID"]}}</option></select>
                     <label for="fecha">Fecha: </label><input type="date" value="{{today}}" name="fecha">
                     <label>Subespacio: </label>
@@ -43,13 +43,13 @@
                         <option name="{{est}}">{{est}}</option>
                         {% endfor %}
                     </select>
-                    <label>Modificacion Global</label><input type="checkbox" id= "{{planta['ID']}}" name = "{{planta['ID']}}"><hr>
+                    <label>Modificacion Global</label><input type="checkbox" name = "{{planta['ID']}}" onchange="hide_div_children(document.getElementsByName(`div_{{planta['ID']}}`)[0],document.getElementsByName(`{{planta['ID']}}`)[0])">
                 </div>
                 {% endfor %}
             </div>
             <div>
-                <label>Modificacion global</label><br>
-                <label for="fechag">Fecha: </label><input type="date" value="{{today}}" name="fechag" ><br>
+                <h3>Modificacion global</h3>
+                <label for="fechag">Fecha: </label><input type="date" value="{{today}}" name="fechag" >
                 <label>Subespacio: </label>
                 <select name="subeglob">
                     <option>Seleccionar</option>
@@ -58,7 +58,7 @@
                                 <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube['Nombre']}}</option>
                             {% endfor %}
                         {% endfor %}
-                </select><br>
+                </select>
                 <label>Estadio: </label>
                 <select name="Estadioglob">
                     <option selected>Seleccionar</option>
@@ -67,7 +67,7 @@
                     {% endfor %}
                 </select>
             </div>
-
+            <br>
             
             
             {% endif %}

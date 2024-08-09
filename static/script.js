@@ -45,11 +45,11 @@ function remove_x_but(div)
 
 
 function checkOtherBoxes(check,children){
-    let v = check.checked;
+    check.checked = !check.checked;
     
     for(let a = 0;a<children.length;a++){
         if (children[a].type == "checkbox"){
-            children[a].checked = check.checked;
+            children[a].checked = !children[a].checked;
         }else if(children[a].children.length > 0){
             checkOtherBoxes(check,children[a].children)
         }
@@ -69,6 +69,39 @@ function hide_(entry)
     let children = entry.children
     if (children != undefined) {for(let i = 0;i<children.length;i++) {hide_children(children[i])}}
 
-    if(entry.style.display == "none") {entry.style.display = "block"}
+    if(entry.style.display == "none") {entry.style.display = "initial"}
     else {entry.style.display = "none"}
+}
+
+
+function hide_div_children(div,check)
+{   
+    let children = div.children
+    let v  = check.checked
+    let st = v != true? "initial":"none";
+    
+    for(let a = 0;a < children.length;a++)
+    {
+        if (children[a].textContent.indexOf(check.name) != -1 || children[a].type == "checkbox" || children[a].name == "planta" || children[a].textContent.indexOf("Global") != -1) {continue}
+
+        if (children[a] != undefined) {children[a].style.display = st}
+    }    
+}
+
+
+function hide_all_div_children(div)
+{
+    let children = div.children
+    for (let i = 0;i < children.length;i++)
+    {
+        if (children[i].children.length > 0)
+        {
+            let child = children[i].children
+            console.log(children[i])
+            console.log(child[child.length-1])
+
+            hide_div_children(children[i],child[child.length-1]);
+        
+        }   
+    }
 }

@@ -103,8 +103,11 @@
                             <label>Espacio = {{trans[log[1]["IDs"][0]]}}</label><br>
                             <label>Comentario = {{log[1]["Log"]["Comment"]}}</label>
                         {% endif %}
-                        
+
                         <br>
+                        <label>Entrada añadida por : {{log[1]["BY"]}}</label>
+                        <br>
+                        
                         {% if log[1]["Log"]["ID"] != 9 and log[1]["Log"]["ID"] != 8 %}
                         <h3>Plantas Afectadas: </h3>
                             {% for p in log[0] %}

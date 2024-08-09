@@ -62,8 +62,8 @@
 			<label for="ph">PH: </label><input type="number" step="0.01" min="0" max="14" name="ph" required><br>
 			<label for="ec">EC: </label><input type="number" step="0.01"  name="ec" required><br>
             <label for="comment">Comentario: <input type="text" id="comment" name="comment"></label><br>
-            
             <hr>
+            
             <div id="producto_0">
                 <label for="prodcuto">Producto: </label>
                 <select name="producto" id="producto">
@@ -92,14 +92,14 @@
             
             {% if modo == 5 %} <!--TRANSPLANTES-->
             <div id="plantas">
-                <label>Plantas Seleccionadas</label><br>
-                <label>Seleccionar Todas</label><input id="tpc" type="checkbox" onclick="checkOtherBoxes(document.getElementById('tpc'),document.getElementById('plantas').children)"><hr>
+                <h3>Plantas Seleccionadas</h3>
+                <label>Seleccionar Todas</label><input id="tpc" type="checkbox" onclick="checkOtherBoxes(document.getElementById('tpc'),document.getElementById('plantas').children)" onchange="hide_all_div_children(document.getElementById('plantas'))"><hr>
                 {% set ns = namespace(found=false) %}
                 {% for planta in plantas %}
-                <div>
+                <div name="div_{{planta['ID']}}">
                     <select name="planta" hidden><option>{{planta['ID']}}</option></select>
-                    <label>Fecha: </label><input type="date" name="fecha" value="{{today}}">
                     <label>{{planta['ID']}} en {{planta['Tam']}}</label>
+                    <label>Fecha: </label><input type="date" name="fecha" value="{{today}}">
                     <select name="tam">
                             {% for tam in tams %}    
 
@@ -124,15 +124,15 @@
                         {% endfor %}
                     </select>
                     {% endif %}
-                    <label>Transplante Global </label><input type="checkbox" name="{{planta['ID']}}">
+                    <label>Transplante Global </label><input type="checkbox" name="{{planta['ID']}}" onchange="hide_div_children(document.getElementsByName(`div_{{planta['ID']}}`)[0],document.getElementsByName(`{{planta['ID']}}`)[0])">
                 </div>
                 {% endfor %}
             </div>
             <hr>
             
             <div>
-                <label>Transplante Global</label><br>
-                <label for="fechaglob">Fecha: </label><input type="date" name="fechaglob" value="{{today}}"><br>
+                <h3>Transplante Global</h3>
+                <label for="fechaglob">Fecha: </label><input type="date" name="fechaglob" value="{{today}}">
                 <select name="tamglob">
                     {% for tam in tams %}
                         <option>{{tam}}</option>
@@ -146,7 +146,7 @@
                     {% endfor %}
                 </select>
             </div>
-            
+            <br>
             {% endif %}
             
             {% if modo == 61 %}

@@ -45,15 +45,24 @@ class Depo():
         self.init_app()
         self.fecha_esquejes = None 
         self.future_log = None
-    #TODO validate entry / diff users
+
     def login(self):
         if flask.request.method == 'POST':
             user = flask.request.form['user'] 
             passw = flask.request.form['passw']
-            if user == "administrador" and passw == "administrador":
-                flask.session["username"] = user
-                return flask.redirect(flask.url_for("home"))
-            else: flask.flash("Usuario/Contraseña equivocada","warning")
+            if self.debug:
+                if user == "administrador" and passw == "administrador":
+                    flask.session["username"] = user
+                    return flask.redirect(flask.url_for("home"))
+                else: flask.flash("Usuario/Contraseña equivocada","warning")
+            else:
+                users = db.reference('/Users').get()
+                for u_ in users:
+                    if u_["Name"] == user or u_["Name"].lower() == user.lower():
+                        if u_["Pass"] == passw:
+                            flask.session['username'] = user
+                            return flask.redirect(flask.url_for('home'))
+                flask.flash('Usuario/Contraseña equiocada','warning')
 
         return flask.render_template('index.html')
 
@@ -106,10 +115,10 @@ class Depo():
         hist_stock = flask.url_for("check_stock")
         hist_riego = flask.url_for("check_riegos")
         check_vars = flask.url_for("check_vars")
+        colores = {var["Nombre"] : var["Color"] for var in self.variedades}
 
-        return flask.render_template("home.html",cant_plantas=len(self.plants)-self.clones_cant,clones = self.clones_cant,espacios=self.espacios,add_p=add_p,config=config,hist_stock=hist_stock,hist_riego=hist_riego,user=flask.session["username"],check_vars=check_vars)
+        return flask.render_template("home.html",cant_plantas=len(self.plants)-self.clones_cant,clones = self.clones_cant,espacios=self.espacios,add_p=add_p,config=config,hist_stock=hist_stock,hist_riego=hist_riego,user=flask.session["username"],check_vars=check_vars,colores=colores)
 #----------------------------------------------ACTIVIDADES----------------------------------------------------------------------------------------#
-    #TODO log with user id 
     def actividad(self):
         
         if "username" not in flask.session:
@@ -161,7 +170,7 @@ class Depo():
         prods = form.getlist("producto")
         medidas = form.getlist("medida")
         for i in range(len(prods)): prods_usados.append([prods[i],medidas[i]])
-        log = {"Fecha":form["fecha"],"IDs":ids,"Log":{"ID":modo,"Comment":form["comment"],
+        log = {"Fecha":form["fecha"],"IDs":ids,"BY":flask.session["username"], "Log":{"ID":modo,"Comment":form["comment"],
                                                                                    "Cantidad":form["cantidad"],"PH":form["ph"],
                                                                                    "EC":form["ec"],"Prods":prods_usados}}
         utility.add_log(self.file,[log]) if self.debug else utility.add_log_fbd(db,[log]) 
@@ -172,7 +181,7 @@ class Depo():
         tipo_poda = form["metodo"]
         fecha = form["fecha"]
         comment = form["comment"]
-        log = {"Fecha":fecha,"IDs":ids,"Log":{"ID":4,"Comment":comment,"Tipo":tipo_poda}}
+        log = {"Fecha":fecha,"IDs":ids,"BY":flask.session["username"],"Log":{"ID":4,"Comment":comment,"Tipo":tipo_poda}}
         
         if tipo_poda == "Poda de esquejes":
             self.fecha_esquejes = fecha
@@ -232,13 +241,13 @@ class Depo():
            clones = self.modificar_planta(cambios_glob,tam=tamg,clones=True)
                 
            if len(clones) > 0: 
-               log = {"Fecha":fechag,"IDs":[clon["ID"] for clon in clones],"Log":{"ID":10,"Est":self.ests[0]}}
+               log = {"Fecha":fechag,"IDs":[clon["ID"] for clon in clones],"BY":flask.session["username"],"Log":{"ID":10,"Est":self.ests[0]}}
                logs.append(log)
-               log = {"Fecha":fechag,"IDs":[clon["ID"] for clon in clones],"Log":{"ID":7,"Loc":subeg}}
+               log = {"Fecha":fechag,"IDs":[clon["ID"] for clon in clones],"BY":flask.session["username"],"Log":{"ID":7,"Loc":subeg}}
                logs.append(log)
                self.modificar_planta(clones,subeg,self.ests[0])
                self.clones_cant -= len(clones)
-           log = {"Fecha":fechag,"IDs":[planta["ID"] for planta in cambios_glob],"Log":{"ID":5,"Tam":tamg}}
+           log = {"Fecha":fechag,"IDs":[planta["ID"] for planta in cambios_glob],"BY":flask.session["username"],"Log":{"ID":5,"Tam":tamg}}
            logs.append(log)
  
 
@@ -246,7 +255,7 @@ class Depo():
             for tam in cambios_por_fecha[fecha].keys():
                 clones = self.modificar_planta(cambios_por_fecha[fecha][tam],tam=tam,clones=True)
                 if len(clones) > 0:
-                    log = {"Fecha":fecha,"IDs":[clon["ID"] for clon in clones],"Log":{"ID":10,"Est":self.ests[0]}}
+                    log = {"Fecha":fecha,"IDs":[clon["ID"] for clon in clones],"BY":flask.session["username"],"Log":{"ID":10,"Est":self.ests[0]}}
                     self.clones_cant -= len(clones)
                     logs.append(log)
                     subes = {}
@@ -258,10 +267,10 @@ class Depo():
                     
                     for sube in subes:
                         self.modificar_planta(subes[sube],sube,self.ests[0])
-                        logs.append({"Fecha":fecha,"IDs":[clon["ID"] for clon in subes[sube]],"Log":{"ID":7,"Loc":sube}})
+                        logs.append({"Fecha":fecha,"IDs":[clon["ID"] for clon in subes[sube]],"BY":flask.session["username"],"Log":{"ID":7,"Loc":sube}})
 
 
-                log = {"Fecha":fecha,"IDs":[planta["ID"] for planta in plantas],"Log":{"ID":5,"Tam":tam}}
+                log = {"Fecha":fecha,"IDs":[planta["ID"] for planta in plantas],"BY":flask.session["username"],"Log":{"ID":5,"Tam":tam}}
                 logs.append(log)
 
         if logs:
@@ -274,7 +283,7 @@ class Depo():
 
         if modo == 61:ids = [form["sube"]]
         elif modo == 62: ids = [form["esp"]]
-        log = {"Fecha":fecha,"IDs":ids,"Log":{"ID":modo,"Comment":comment}}
+        log = {"Fecha":fecha,"IDs":ids,"BY":flask.session["username"],"Log":{"ID":modo,"Comment":comment}}
         utility.add_log(self.file,[log]) if self.debug else utility.add_log_fbd(db,[log])
 #----------------------------------------------ADD-----------------------------------------------------------------------------------------------#
     def add_p(self): 
@@ -340,7 +349,7 @@ class Depo():
                 logs.append(self.future_log)
                 self.future_log = None
                 for sube in cambio_por_sube.keys(): 
-                    log = {"Fecha":self.fecha_esquejes,"IDs":cambio_por_sube[sube],"Log":{"ID":9,"Loc":sube}}
+                    log = {"Fecha":self.fecha_esquejes,"IDs":cambio_por_sube[sube],"BY":flask.session["username"],"Log":{"ID":9,"Loc":sube}}
                     logs.append(log)
 
         if not self.debug:
@@ -351,7 +360,7 @@ class Depo():
 
         if not clone:
             for fecha in fechas_logs.keys():
-                for sube in fechas_logs[fecha].keys():logs.append({"Fecha":fecha,"IDs":fechas_logs[fecha][sube],"Log":{"ID":9,"Loc":sube}})
+                for sube in fechas_logs[fecha].keys():logs.append({"Fecha":fecha,"IDs":fechas_logs[fecha][sube],"BY":flask.session["username"],"Log":{"ID":9,"Loc":sube}})
 
 
         return logs
@@ -445,27 +454,27 @@ class Depo():
             glob_ids = [planta["ID"] for planta in glob_p]
             if subg != "Seleccionar" and estg != "Seleccionar":
                 self.modificar_planta(glob_p,subg,estg)
-                logs.append({"Fecha":fechag,"IDs":glob_ids,"Log":{"ID":7,"Loc":subg}})
-                logs.append({"Fecha":fechag,"IDs":glob_ids,"Log":{"ID":10,"Est":estg}})                        
+                logs.append({"Fecha":fechag,"IDs":glob_ids,"BY":flask.session["username"],"Log":{"ID":7,"Loc":subg}})
+                logs.append({"Fecha":fechag,"IDs":glob_ids,"BY":flask.session["username"],"Log":{"ID":10,"Est":estg}})                        
             elif subg != "Seleccionar":
                 self.modificar_planta(glob_p,subg)
-                logs.append({"Fecha":fechag,"IDs":glob_ids,"Log":{"ID":7,"Loc":subg}})
+                logs.append({"Fecha":fechag,"IDs":glob_ids,"BY":flask.session["username"],"Log":{"ID":7,"Loc":subg}})
             elif estg != "Seleccionar":
                 muertas = self.modificar_planta(glob_p,est=estg,dead=True)
                 if muertas: logs += self.kill_plants(muertas,fechag)
-                else: logs.append({"Fecha":fechag,"IDs":glob_ids,"Log":{"ID":10,"Est":estg}})
+                else: logs.append({"Fecha":fechag,"IDs":glob_ids,"BY":flask.session["username"],"Log":{"ID":10,"Est":estg}})
 
         for fecha in cambios_por_fecha.keys():
             for sube in cambios_por_fecha[fecha][0].keys():
                 ids = [planta["ID"] for planta in cambios_por_fecha[fecha][0][sube]]
                 self.modificar_planta(cambios_por_fecha[fecha][0][sube],sube)
-                logs.append({"Fecha":fecha,"IDs":ids,"Log":{"ID":7,"Loc":sube}})
+                logs.append({"Fecha":fecha,"IDs":ids,"BY":flask.session["username"],"Log":{"ID":7,"Loc":sube}})
                     
             for est in cambios_por_fecha[fecha][1].keys():
                 ids = [planta["ID"] for planta in cambios_por_fecha[fecha][1][est]]
                 muertas = self.modificar_planta(cambios_por_fecha[fecha][1][est],est=est,dead=True)
                 if muertas: logs+=self.kill_plants(muertas,fecha)
-                else: logs.append({"Fecha":fecha,"IDs":ids,"Log":{"ID":10,"Est":est}})
+                else: logs.append({"Fecha":fecha,"IDs":ids,"BY":flask.session["username"],"Log":{"ID":10,"Est":est}})
 
         if logs:
             if self.debug : utility.add_log(self.file,logs)
@@ -490,7 +499,10 @@ class Depo():
 
             p_curr_loc = utility.get_loc_idx(self.variedades[p_var_id]["Individuos"][p_var[1]]["Loc"])
             
-            if self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Clones"] and clones: clones_.append(planta)
+            is_clone = False
+            if self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Clones"] and clones: 
+                is_clone = True
+                clones_.append(planta)
 
             for l in range(len(self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Individuos"])):
                 indiv = self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Individuos"][l]
@@ -500,7 +512,9 @@ class Depo():
             locations.append(p_curr_loc)
             var_location.append(p_var_id)
             
-            if est == "Muerta":  self.plants.pop(self.plants.index(planta))
+            if est == "Muerta":  
+                self.plants.pop(self.plants.index(planta))
+                if is_clone: self.clones_cant -= 1
             
             new_loc_id = utility.get_loc_idx(sube) if sube is not None else []
             if len(new_loc_id) == 2 and new_loc_id != p_curr_loc:
@@ -561,7 +575,7 @@ class Depo():
 
     def kill_plants(self,plantas:dict,fecha:str):
         logs = []
-        for sube in plantas: logs.append({"Fecha":fecha,"IDs":[planta["ID"] for planta in plantas[sube]],"Log":{"ID":8,"Loc":sube}})
+        for sube in plantas: logs.append({"Fecha":fecha,"IDs":[planta["ID"] for planta in plantas[sube]],"BY":flask.session["username"],"Log":{"ID":8,"Loc":sube}})
         return logs
 #-------------------------------------------LOGS---------------------------------------------------------------------------------------------------#
     def show_log(self):
@@ -847,6 +861,7 @@ class Depo():
             #-----------------------------------------------------------------Edits----------------------------------------------------------------#
             es_names = form.getlist("nombre")
             v_names = form.getlist("nombre_v")
+            cols_v = form.getlist("col_v")
             p_names = form.getlist("nombre_p")
             tipos = form.getlist("tipo")
             tams = form.getlist("tam")
@@ -864,8 +879,10 @@ class Depo():
             #TODO for each var, agregar un seleccionable para elegir el color
             if len(v_names) > 0:
                 nvs = []
-                for v in v_names:
-                    nv = {"Nombre":v,"Individuos":[]}
+                for i in range(len(v_names)):
+                    v = v_names[i]
+                    col_v = cols_v[i]
+                    nv = {"Nombre":v,"Color":col_v,"Individuos":[]}
                     self.variedades.append(nv)
                     nvs.append(nv)
 

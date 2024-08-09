@@ -97,6 +97,12 @@
         <form method="POST">
             <div id="variedad_0" name="variedad_0">
                 <label for="nombre_v">Nombre Variedad: </label><input  type="text" name="nombre_v">
+                <select name="col_v">
+                    <option style="color: red;"  value="red">rojo</option>
+                    <option style="color: blue;" value="blue">azul</option>
+                    <option style="color: green;" value="green">verde</option>
+                    <option style="color: pink" value="pink">rosa</option>
+                </select>
             </div>
             <button type="button" id="addVar" onclick="copiar_div(document.getElementById('variedad_0'),document.getElementById('addVar'))">+</button><br>
             <input type="submit" name="var" value="Agregar variedades"><br>
