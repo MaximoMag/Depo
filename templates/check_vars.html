@@ -12,27 +12,35 @@
                 {% for var in empty %}
                     <label>{{var}}</label><br>
                 {% endfor %}
+        {% else %}
+            <label>No hay variedades sin plantas ni clones</label><br>
         {% endif %}
 
         {% if one_plant_only %}
-            <label>Variedades una sola planta</label><br>
+            <label>Variedades con una sola planta</label><br>
             {% for var in one_plant_only %}
                 <label>{{var}}</label><br>
             {% endfor %}
+        {% else %}
+            <label>No hay variedades con solo una planta</label><br>
         {% endif %}
-        
+
         {% if one_plant_pclones %}
             <label>Variedades con 1 sola planta, y clones</label><br>
             {% for var in one_plant_pclones %}
                 <label>{{var}}</label><br>
             {% endfor %}
+        {% else %}
+            <label>No hay variedades con 1 sola planta , y clones </label><br>
         {% endif %}
-        
+
         {% if mult_plants %}
             <label>Variedades con mas de una planta</label><br>
             {% for var in mult_plants %}
                 <label>{{var}}</label><br>
             {% endfor %}
+        {% else %}
+            <label>No hay variedades con mas de una planta</label><br>
         {% endif %}
 
 
