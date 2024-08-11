@@ -30,7 +30,7 @@
                             {% for planta in sube["Individuos"] if planta["Estadio"] != "Muerta" %}
                                 <br>    
                                 {% with var = planta["ID"][:planta["ID"].index("-")] %}                          
-                                    {% if colores[var] == "blue" or colores[var] == "red" or colores[var] == "grey"%} 
+                                    {% if colores[var] == "blue" or colores[var] == "red" or colores[var] == "grey" %} 
                                     <span style="background-color: {{colores[var]}};"><label style="color: white">{{planta['ID']}}: {{planta['Tam']}}</label></span>
                                     {% else %}    
                                     <span style="background-color: {{colores[var]}};"><label style="color: black">{{planta['ID']}}: {{planta['Tam']}}</label></span>
