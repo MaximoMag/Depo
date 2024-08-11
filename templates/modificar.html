@@ -22,6 +22,7 @@
             <div id="plantas">
                 <h3>Plantas Seleccionadas: </h3>
                 <label>Seleccionar Todas</label><input id="tpc" type="checkbox" onclick="checkOtherBoxes(document.getElementById('tpc'),document.getElementById('plantas').children)" onchange="hide_all_div_children(document.getElementById('plantas'))"><hr>
+                {% set ns = namespace(clones=false) %}
                 {% for planta in plantas %}
                 <div name="div_{{planta['ID']}}">
                     <label>{{planta["ID"]}}</label>
@@ -30,11 +31,20 @@
                     <label>Subespacio: </label>
                     <select name="sube">
                         <option >Seleccionar</option>
-                        {% for esp in espacios if esp["Existe"] %}
-                            {% for sube in esp["Subespacios"] if sube["Existe"] and not sube["Clones"] %}
+                        {% if planta["Estadio"] != "Clon" %}
+                            {% for esp in espacios if esp["Existe"] %}
+                                {% for sube in esp["Subespacios"] if sube["Existe"] and not sube["Clones"] %}
                                 <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube['Nombre']}}</option>
+                                {% endfor %}
                             {% endfor %}
-                        {% endfor %}
+                        {% else %}
+                            {% set ns.clones = true %}
+                            {% for esp in espacios if esp["Existe"] %}
+                                {% for sube in esp["Subespacios"] if sube["Existe"] and sube["Clones"] %}
+                                    <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube['Nombre']}}</option>
+                                {% endfor %}
+                            {% endfor %}
+                        {% endif %}
                     </select>
                     <label>Estadio: </label>
                     <select name="Estadio">
@@ -53,11 +63,19 @@
                 <label>Subespacio: </label>
                 <select name="subeglob">
                     <option>Seleccionar</option>
-                    {% for esp in espacios if esp["Existe"] %}
+                    {% if ns.clones %}
+                        {% for esp in espacios if esp["Existe"] %}
+                            {% for sube in esp["Subespacios"] if sube["Existe"] and sube["Clones"] %}
+                                <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube['Nombre']}}</option>
+                            {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        {% for esp in espacios if esp["Existe"] %}
                             {% for sube in esp["Subespacios"] if sube["Existe"] and not sube["Clones"] %}
                                 <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube['Nombre']}}</option>
                             {% endfor %}
                         {% endfor %}
+                    {% endif %}
                 </select>
                 <label>Estadio: </label>
                 <select name="Estadioglob">
