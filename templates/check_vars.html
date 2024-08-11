@@ -7,33 +7,34 @@
         <br><hr>
     </head>
 	<body>
-        {% if empty_vars %}
+        {% if empty %}
             <label>Variedades sin plantas ni clones: </label><br>
-                {% for var in empty_vars %}
+                {% for var in empty %}
                     <label>{{var}}</label><br>
                 {% endfor %}
         {% endif %}
 
-        {% if vars_wo_c %}
-            <label>Variedades sin clones, pero si plantas</label><br>
-            {% for var in vars_wo_c %}
+        {% if one_plant_only %}
+            <label>Variedades una sola planta</label><br>
+            {% for var in one_plant_only %}
                 <label>{{var}}</label><br>
             {% endfor %}
         {% endif %}
         
-        {% if vars_w_c %}
-            <label>Variedades con clones,pero sin plantas</label><br>
-            {% for var in vars_w_c %}
+        {% if one_plant_pclones %}
+            <label>Variedades con 1 sola planta, y clones</label><br>
+            {% for var in one_plant_pclones %}
+                <label>{{var}}</label><br>
+            {% endfor %}
+        {% endif %}
+        
+        {% if mult_plants %}
+            <label>Variedades con mas de una planta</label><br>
+            {% for var in mult_plants %}
                 <label>{{var}}</label><br>
             {% endfor %}
         {% endif %}
 
-        {% if vars %}
-            <label>Variedades con plantas y clones</label><br>
-            {% for var in vars %}
-                <label>{{var}}</label><br>
-            {% endfor %}
-        {% endif %}
 
 	</body>
 </html>

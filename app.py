@@ -245,7 +245,7 @@ class Depo():
                logs.append(log)
                log = {"Fecha":fechag,"IDs":[clon["ID"] for clon in clones],"BY":flask.session["username"],"Log":{"ID":7,"Loc":subeg}}
                logs.append(log)
-               self.modificar_planta(clones,subeg,self.ests[0])
+               self.modificar_planta(clones,subeg,self.ests[0],clones=True)
                self.clones_cant -= len(clones)
            log = {"Fecha":fechag,"IDs":[planta["ID"] for planta in cambios_glob],"BY":flask.session["username"],"Log":{"ID":5,"Tam":tamg}}
            logs.append(log)
@@ -266,7 +266,7 @@ class Depo():
 
                     
                     for sube in subes:
-                        self.modificar_planta(subes[sube],sube,self.ests[0])
+                        self.modificar_planta(subes[sube],sube,self.ests[0],clones=True)
                         logs.append({"Fecha":fecha,"IDs":[clon["ID"] for clon in subes[sube]],"BY":flask.session["username"],"Log":{"ID":7,"Loc":sube}})
 
 
@@ -309,8 +309,15 @@ class Depo():
 
     def add_plantas(self,vars:list[str],subes:list[str],fechas:list[str],tams:list[str],ests:list[str],clone:bool=False,cant_clones:list[str]=[]):
         logs = []
-        cambio_por_sube = {sube : [] for sube in subes}
-        cambio_por_sube_yvar = {}
+
+        if clone:
+            logs.append(self.future_log)
+            self.future_log = None
+
+
+        cambio_por_sube = {sube: [] for sube in subes}
+        cambio_por_sube_yvar = {sube : {var_id: [] for var_id in range(len(self.variedades))} for sube in subes}
+        
         final_ids = []
         fechas_logs = {}
 
@@ -319,7 +326,12 @@ class Depo():
             for j in range(len(self.variedades)):
                 if self.variedades[j]["Nombre"] == vars[i]: var_id = j
 
-            range_ = int(cant_clones[i]) if clone else 1
+            range_ = 1
+            
+            if clone:
+                range_ = int(cant_clones[i]) 
+                self.clones_cant += range_
+
             for _ in range(range_):
                 clon_i = {"ID": vars[i] + "-" + str(len(self.variedades[var_id]["Individuos"])),"Estadio":"Clon" if clone else ests[i],"Tam":tams[i]}
                 if not clone: final_ids.append(clon_i["ID"])
@@ -330,14 +342,10 @@ class Depo():
                 self.variedades[var_id]["Individuos"].append(mod_clon_i)
                 self.espacios[id_e[0]]["Subespacios"][id_e[1]]["Individuos"].append(clon_i)
                 self.plants.append(clon_i)
-                if clone: self.clones_cant += 1
                 
-                if subes[i] in cambio_por_sube_yvar.keys(): 
-                    if var_id in cambio_por_sube_yvar[subes[i]].keys():cambio_por_sube_yvar[subes[i]][var_id].append(clon_i)
-                    else:cambio_por_sube_yvar[subes[i]][var_id] = [clon_i]
-                else:  cambio_por_sube_yvar[subes[i]] = {var_id:[clon_i]}
-
+                cambio_por_sube_yvar[subes[i]][var_id].append(clon_i)
                 cambio_por_sube[subes[i]].append(clon_i["ID"])
+                
                 if self.debug: utility.add_plant(self.file,id_e[0],id_e[1],var_id,clon_i)
             
             if not clone:
@@ -345,23 +353,22 @@ class Depo():
                     if subes[i] in fechas_logs[f"{fechas[i]}"].keys():fechas_logs[f"{fechas[i]}"][subes[i]].append(final_ids[-1])
                     else:fechas_logs[f"{fechas[i]}"][subes[i]] = [final_ids[-1]]
                 else:fechas_logs[f"{fechas[i]}"] = {subes[i] : [final_ids[-1]]}
-            else:
-                logs.append(self.future_log)
-                self.future_log = None
-                for sube in cambio_por_sube.keys(): 
-                    log = {"Fecha":self.fecha_esquejes,"IDs":cambio_por_sube[sube],"BY":flask.session["username"],"Log":{"ID":9,"Loc":sube}}
-                    logs.append(log)
+
 
         if not self.debug:
             for key in cambio_por_sube_yvar:
                 esp = utility.get_loc_idx(key)
-                for var in cambio_por_sube_yvar[key]: utility.add_planta_fdb(db,esp[0],esp[1],var,cambio_por_sube_yvar[key][var])
+                for var in cambio_por_sube_yvar[key]: 
+                    if len(cambio_por_sube_yvar[key][var]) > 0:utility.add_planta_fdb(db,esp[0],esp[1],var,cambio_por_sube_yvar[key][var])
         else: self.update_db()
 
         if not clone:
             for fecha in fechas_logs.keys():
                 for sube in fechas_logs[fecha].keys():logs.append({"Fecha":fecha,"IDs":fechas_logs[fecha][sube],"BY":flask.session["username"],"Log":{"ID":9,"Loc":sube}})
-
+        else:
+            for sube in cambio_por_sube.keys(): 
+                log = {"Fecha":self.fecha_esquejes,"IDs":cambio_por_sube[sube],"BY":flask.session["username"],"Log":{"ID":9,"Loc":sube}}
+                logs.append(log)
 
         return logs
 #---------------------------------------------MOD-----------------------------------------------------------------------------------------------#
@@ -500,7 +507,7 @@ class Depo():
             p_curr_loc = utility.get_loc_idx(self.variedades[p_var_id]["Individuos"][p_var[1]]["Loc"])
             
             is_clone = False
-            if self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Clones"] and clones: 
+            if self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Clones"]: 
                 is_clone = True
                 clones_.append(planta)
 
@@ -512,17 +519,13 @@ class Depo():
             locations.append(p_curr_loc)
             var_location.append(p_var_id)
             
-            if est == "Muerta":  
-                self.plants.pop(self.plants.index(planta))
-                if is_clone: self.clones_cant -= 1
-            
             new_loc_id = utility.get_loc_idx(sube) if sube is not None else []
             if len(new_loc_id) == 2 and new_loc_id != p_curr_loc:
                 if est is not None: 
-                    if est != "Muerta": self.plants(self.plants.index(planta))["Estadio"] = est
+                    if est != "Muerta": self.plants[self.plants.index(planta)]["Estadio"] = est
                     plantas[i]["Estadio"] = est
                 if tam is not None: 
-                    self.plants(self.plants.index(planta))["Tam"] = tam
+                    self.plants[self.plants.index(planta)]["Tam"] = tam
                     plantas[i]["Tam"] = tam
 
                 self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Individuos"].pop(p_curr_loc[2])
@@ -532,8 +535,8 @@ class Depo():
             elif est is not None:
                 self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Individuos"][p_curr_loc[2]]["Estadio"] = est
                 if est != "Muerta": self.plants[self.plants.index(planta)]["Estadio"] = est 
-
-                if est == "Muerta":
+                else:
+                    if is_clone: self.clones_cant -= 1
                     curr_sube_name = self.variedades[p_var_id]["Individuos"][p_var[1]]["Loc"]
                     if curr_sube_name in dead_subes.keys(): dead_subes[curr_sube_name].append(planta)
                     else: dead_subes[curr_sube_name] = [planta]
@@ -747,10 +750,10 @@ class Depo():
             return flask.redirect(flask.url_for("home"))
 
     def check_vars(self):
-        vars_wo_c = []
-        vars_w_c  = []
         empty_vars = []
-        complete_vars = []
+        vars_1p_pclones  = []
+        vars_pp = []
+        vars_1p_only = []
         vars = {var["Nombre"]: [0,0] for var in self.variedades}
         for planta in self.plants:
             p_var = utility.get_var_id(planta["ID"])[0]
@@ -759,15 +762,15 @@ class Depo():
 
         for var in vars:
             if vars[var] == [0,0]:empty_vars.append(var) #Sin clones ni plantas
-            elif vars[var][0] == 0:vars_w_c.append(var) #Clones pero sin enraizar
-            elif vars[var][1] == 0: vars_wo_c.append(var)
-            else: complete_vars.append(var)
+            elif vars[var][0] > 1: vars_pp.append(var)
+            elif vars[var][0] == 1 and vars[var][1] > 0:vars_1p_pclones.append(var) #Clones pero sin enraizar
+            elif vars[var][0] == 1: vars_1p_only.append(var)
         
-        if vars_wo_c == vars_w_c == empty_vars == complete_vars:
+        if empty_vars == vars_1p_only == vars_1p_pclones == vars_pp:
             flask.flash("No hay variedades cargadas")
             return flask.redirect(flask.url_for("home"))
 
-        return flask.render_template("check_vars.html",vars_w_c=vars_w_c,vars_wo_c=vars_wo_c,empty_vars=empty_vars,vars=complete_vars,home=flask.url_for("home"))
+        return flask.render_template("check_vars.html",empty=empty_vars,one_plant_only=vars_1p_only,one_plant_pclones=vars_1p_pclones,mult_plants=vars_pp,home=flask.url_for("home"))
 #------------------------------------------CONFIGURACION-------------------------------------------------------------------------------------------#
     def configuracion(self):
         if "username" not in flask.session:
@@ -996,6 +999,6 @@ class Depo():
 
     def run(self):
         self.app.run(debug=True)
- 
+
 depo = Depo(False)
 depo.run()
