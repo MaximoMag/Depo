@@ -63,7 +63,7 @@
                 <label>Subespacio: </label>
                 <select name="subeglob">
                     <option>Seleccionar</option>
-                    {% if ns.clones %}
+                    {% if ns.clones == true %}
                         {% for esp in espacios if esp["Existe"] %}
                             {% for sube in esp["Subespacios"] if sube["Existe"] and sube["Clones"] %}
                                 <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube['Nombre']}}</option>
