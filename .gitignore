@@ -4,7 +4,6 @@ a.json
 *.zip
 depot.json
 *.txt
-test.py
 *.env
 *.json
 test.py
