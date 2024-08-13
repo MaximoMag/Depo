@@ -283,6 +283,7 @@ class Depo():
 
         if modo == 61:ids = [form["sube"]]
         elif modo == 62: ids = [form["esp"]]
+
         log = {"Fecha":fecha,"IDs":ids,"BY":flask.session["username"],"Log":{"ID":modo,"Comment":comment}}
         utility.add_log(self.file,[log]) if self.debug else utility.add_log_fbd(db,[log])
 #----------------------------------------------ADD-----------------------------------------------------------------------------------------------#
@@ -382,16 +383,16 @@ class Depo():
             modo = int(form["modo"])
             
             if modo ==  0:            
-
                 plantas = form.getlist("planta")
                 selected_p = []
                 for planta in plantas:
+                    loc = None
                     p_var = utility.get_var_id(planta)
                     for var in self.variedades:
-                        if var["Nombre"] == p_var[0]:
-                            loc = utility.get_loc_idx(var["Individuos"][p_var[1]]["Loc"])
-                            for indiv in self.espacios[loc[0]]["Subespacios"][loc[1]]["Individuos"]:
-                                if indiv["ID"] == planta: selected_p.append(indiv)
+                        if var["Nombre"] == p_var[0]: loc = utility.get_loc_idx(var["Individuos"][p_var[1]]["Loc"])
+
+                    for indiv in self.espacios[loc[0]]["Subespacios"][loc[1]]["Individuos"]:
+                        if indiv["ID"] == planta: selected_p.append(indiv)
 
                 fechas = form.getlist("fecha")
                 sube = form.getlist("sube")
@@ -457,8 +458,9 @@ class Depo():
                         cambios_por_fecha[fechas[i]][1][est[i]] = [planta]
         
         logs = []
-        if subg != "Seleccionar" or estg != "Seleccionar":
+        if (subg != "Seleccionar" or estg != "Seleccionar") and glob_p:
             glob_ids = [planta["ID"] for planta in glob_p]
+            print(glob_ids)
             if subg != "Seleccionar" and estg != "Seleccionar":
                 self.modificar_planta(glob_p,subg,estg)
                 logs.append({"Fecha":fechag,"IDs":glob_ids,"BY":flask.session["username"],"Log":{"ID":7,"Loc":subg}})
@@ -488,16 +490,14 @@ class Depo():
             else: utility.add_log_fbd(db,logs)
 
     def modificar_planta(self,plantas:list[dict],sube:str=None,est:str=None,tam:str=None,clones:bool=False,dead:bool=False):
-        tmp_vars = {}
-        locations = []
-        var_location = []
-        clones_ = []
-        dead_subes = {}
+        tmp_vars = dead_subes = {}
+        locations = var_location = clones_ = []
         
         for i in range(len(plantas)):
             planta = plantas[i]
             p_var = utility.get_var_id(planta['ID'])
             p_var_id = -1
+            
             if p_var[0] in tmp_vars.keys(): p_var_id = tmp_vars[p_var[0]]
             else:
                 for j in range(len(self.variedades)):
@@ -519,19 +519,20 @@ class Depo():
             locations.append(p_curr_loc)
             var_location.append(p_var_id)
             
-            new_loc_id = utility.get_loc_idx(sube) if sube is not None else []
-            if len(new_loc_id) == 2 and new_loc_id != p_curr_loc:
-                if est is not None: 
-                    if est != "Muerta": self.plants[self.plants.index(planta)]["Estadio"] = est
-                    plantas[i]["Estadio"] = est
-                if tam is not None: 
-                    self.plants[self.plants.index(planta)]["Tam"] = tam
-                    plantas[i]["Tam"] = tam
+            if sube is not None:
+                new_loc_id = utility.get_loc_idx(sube)
+                
+                if new_loc_id == p_curr_loc[:2]: continue
 
+                if est is not None: 
+                    if est != "Muerta": self.plants[self.plants.index(planta)]["Estadio"] = plantas[i]["Estadio"] = est
+
+                if tam is not None: 
+                    self.plants[self.plants.index(planta)]["Tam"] = plantas[i]["Tam"] = tam
+                    
                 self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Individuos"].pop(p_curr_loc[2])
                 self.espacios[new_loc_id[0]]["Subespacios"][new_loc_id[1]]["Individuos"].append(plantas[i])
                 self.variedades[p_var_id]["Individuos"][p_var[1]]["Loc"] = sube
-
             elif est is not None:
                 self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Individuos"][p_curr_loc[2]]["Estadio"] = est
                 if est != "Muerta": self.plants[self.plants.index(planta)]["Estadio"] = est 
@@ -540,7 +541,6 @@ class Depo():
                     curr_sube_name = self.variedades[p_var_id]["Individuos"][p_var[1]]["Loc"]
                     if curr_sube_name in dead_subes.keys(): dead_subes[curr_sube_name].append(planta)
                     else: dead_subes[curr_sube_name] = [planta]
-            
             elif tam is not None:
                 self.plants[self.plants.index(planta)]["Tam"] = tam
                 self.espacios[p_curr_loc[0]]["Subespacios"][p_curr_loc[1]]["Individuos"][p_curr_loc[2]]["Tam"] = tam

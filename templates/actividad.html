@@ -159,7 +159,7 @@
 
 
             {% if modo == 6 or modo == 61 or modo == 62 %} <!--Bitacora-->
-            {% if plantas %}{% for planta in plantas %}<select><option name="planta" hidden>{{planta["ID"]}}</option></select>{% endfor %}{% endif %}
+            {% if plantas %}{% for planta in plantas %}<select name="planta" hidden><option>{{planta["ID"]}}</option></select>{% endfor %}{% endif %}
             {% if esp %}<select name="esp" hidden>{{esp["ID"]}}</select>{% endif %}
             {% if sube %}<select name="sube" hidden>{{sube["ID"]}}</select>{% endif %}
             <label for="fecha">Fecha: </label><input type="date" name="fecha" required value="{{today}}">
