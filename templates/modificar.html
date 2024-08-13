@@ -9,28 +9,32 @@
         <title>Modificar Espacios</title>
         <label>Modificar Espacios</label>
         {% endif %}
+        <link rel="stylesheet" href="static/css/modify_styles.css"> <!-- Enlace al CSS -->
         <button onclick="document.location='{{home}}'">Home</button>
         <br><hr>
     </head>
     <body>
         <script src="static/script.js"></script>
         
-        <form  method="POST">
+        <form method="POST">
             <select name="modo" hidden><option>{{mode}}</option></select>
 
-            {% if mode == 0 %} <!--Modificar Plantas-->
+            {% if mode == 0 %} <!-- Modificar Plantas -->
             <div id="plantas">
-                <h3>Plantas Seleccionadas: </h3>
-                <label>Seleccionar Todas</label><input id="tpc" type="checkbox" onclick="checkOtherBoxes(document.getElementById('tpc'),document.getElementById('plantas').children)" onchange="hide_all_div_children(document.getElementById('plantas'))"><hr>
+                <h3>Plantas Seleccionadas:</h3>
+                <label>Seleccionar Todas</label>
+                <input id="tpc" type="checkbox" onclick="checkOtherBoxes(document.getElementById('tpc'), document.getElementById('plantas').children)" onchange="hide_all_div_children(document.getElementById('plantas'))">
+                <hr>
                 {% set ns = namespace(clones=false) %}
                 {% for planta in plantas %}
                 <div name="div_{{planta['ID']}}">
                     <label>{{planta["ID"]}}</label>
                     <select name="planta" hidden><option>{{planta["ID"]}}</option></select>
-                    <label for="fecha">Fecha: </label><input type="date" value="{{today}}" name="fecha">
-                    <label>Subespacio: </label>
+                    <label for="fecha">Fecha:</label>
+                    <input type="date" value="{{today}}" name="fecha">
+                    <label>Subespacio:</label>
                     <select name="sube">
-                        <option >Seleccionar</option>
+                        <option>Seleccionar</option>
                         {% if planta["Estadio"] != "Clon" %}
                             {% for esp in espacios if esp["Existe"] %}
                                 {% for sube in esp["Subespacios"] if sube["Existe"] and not sube["Clones"] %}
@@ -46,21 +50,23 @@
                             {% endfor %}
                         {% endif %}
                     </select>
-                    <label>Estadio: </label>
+                    <label>Estadio:</label>
                     <select name="Estadio">
-                        <option >Seleccionar</option>
+                        <option>Seleccionar</option>
                         {% for est in ests %}
                         <option name="{{est}}">{{est}}</option>
                         {% endfor %}
                     </select>
-                    <label>Modificacion Global</label><input type="checkbox" name = "{{planta['ID']}}" onchange="hide_div_children(document.getElementsByName(`div_{{planta['ID']}}`)[0],document.getElementsByName(`{{planta['ID']}}`)[0])">
+                    <label>Modificación Global</label>
+                    <input type="checkbox" name="{{planta['ID']}}" onchange="hide_div_children(document.getElementsByName('div_{{planta['ID']}}')[0], document.getElementsByName('{{planta['ID']}}')[0])">
                 </div>
                 {% endfor %}
             </div>
             <div>
-                <h3>Modificacion global</h3>
-                <label for="fechag">Fecha: </label><input type="date" value="{{today}}" name="fechag" >
-                <label>Subespacio: </label>
+                <h3>Modificación Global</h3>
+                <label for="fechag">Fecha:</label>
+                <input type="date" value="{{today}}" name="fechag">
+                <label>Subespacio:</label>
                 <select name="subeglob">
                     <option>Seleccionar</option>
                     {% if ns.clones == true %}
@@ -77,31 +83,28 @@
                         {% endfor %}
                     {% endif %}
                 </select>
-                <label>Estadio: </label>
+                <label>Estadio:</label>
                 <select name="Estadioglob">
                     <option selected>Seleccionar</option>
                     {% for est in ests %}
-                        <option >{{est}}</option>
+                        <option>{{est}}</option>
                     {% endfor %}
                 </select>
             </div>
             <br>
-            
-            
             {% endif %}
-
 
             {% if mode == 1 %}
                 {% if vacio is sameas true %}
                     <button type="submit" name="delete" value="{{espacio['ID']}}">Eliminar Espacio</button>
                 {% endif %}
             
-            {% if espacio["Subespacios"]  %}
+            {% if espacio["Subespacios"] %}
             <div>
-                <label>Subespacios Actuales </label><br>
+                <label>Subespacios Actuales</label><br>
                 {% for sube in espacio["Subespacios"] if sube["Existe"] %}
                     <label>{{sube["Nombre"]}}</label>
-                    {% set p = namespace(plantas=0) %} 
+                    {% set p = namespace(plantas=0) %}
                     {% set dp = namespace(d_plantas=0) %}
                     
                     {% for planta in sube['Individuos'] %}
@@ -115,7 +118,7 @@
                     {% endfor %}
 
                     {% if p.plantas is sameas dp.d_plantas %}
-                        <button type="submit" name="del_sube" value="{{sube['ID']}}">Eliminar Subespacio</button><
+                        <button type="submit" name="del_sube" value="{{sube['ID']}}">Eliminar Subespacio</button>
                     {% endif %}
                     <br>
                 {% endfor %}
@@ -123,10 +126,11 @@
             {% endif %}
             <select name="esp" hidden><option>{{espacio["ID"]}}</option></select>
             <div id="sube_0" name="sube_0">
-                <label for="nombre">Nombre Subespacio: </label><input type="text" name="nombre">
-            <!--Tiene clones?? checkbox-->
+                <label for="nombre">Nombre Subespacio:</label>
+                <input type="text" name="nombre">
+                <!-- Tiene clones?? checkbox -->
             </div>
-            <button type="button" id="addSube" onclick="copiar_div(document.getElementById('sube_0'),document.getElementById('addSube'))">+</button><br>
+            <button type="button" id="addSube" onclick="copiar_div(document.getElementById('sube_0'), document.getElementById('addSube'))">+</button><br>
             {% endif %}
             
             <input type="submit" value="Modificar"><br>

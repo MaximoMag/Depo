@@ -105,3 +105,17 @@ function hide_all_div_children(div)
         }   
     }
 }
+
+function toggleDetails(fecha) {
+    var details = document.querySelector('div[name="' + fecha + '"]');
+    var arrow = document.querySelector('button[onclick*="' + fecha + '"] .arrow');
+    
+    if (details.classList.contains('hidden')) {
+        details.classList.remove('hidden');
+        arrow.innerHTML = '&#9650;'; // Flecha hacia arriba
+    } else {
+        details.classList.add('hidden');
+        arrow.innerHTML = '&#9660;'; // Flecha hacia abajo
+    }
+}
+

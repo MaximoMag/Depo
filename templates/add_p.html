@@ -1,52 +1,55 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<title>Añadir Plantas</title>
-        <label>Añadir Plantas</label>
-        <button onclick="document.location='{{home}}'">Home</button>
-        <br>
-        <hr>
-	</head>
-	<body>
-        <script src="static/script.js"></script>
-        
-        <form action="/añadir planta" method="POST" enctype="application/json">
-            <div id="planta_0" name="planta_0">
-                <label for="fecha">Fecha: </label><input type="date" value="{{today}}" name="fecha" required>
-                <label for="variedad">Variedad: </label>
-                
-                <select name="variedad" id="variedad">
-                    {% for variedad in variedades %} <!--Variedades ahora es un dict "Nombre","ID"-->
-                    <option value="{{variedad['Nombre']}}">{{variedad["Nombre"]}}</option>
-                    {% endfor %}
-                </select>
-                <label for="sube">Subespacio: </label>
-                
-                <select name="sube">
-                    {% for esp in espacios if esp["Existe"]%}
-                            {% for sube in esp["Subespacios"] if sube["Existe"] and not sube["Clones"] %}
-                        <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube["Nombre"]}}</option>
-                        {% endfor %}
-                    {% endfor %}
-                </select>
-
-                <select name="tam">
-                    {% for tam in tams %}
-                    <option value="{{tam}}">{{tam}}</option>
-                    {% endfor %}
-                </select>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Añadir Plantas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/add_p.css') }}">
+</head>
+<body>
+    <h1>Añadir Plantas</h1>
+    <button onclick="document.location='{{home}}'">Home</button>
+    <br>
+    <hr>
+    <script src="static/script.js"></script>
+    
+    <form action="/añadir planta" method="POST" enctype="application/json">
+        <div id="planta_0" name="planta_0">
+            <label for="fecha">Fecha: </label><input type="date" value="{{today}}" name="fecha" required>
+            <label for="variedad">Variedad: </label>
             
-                <select name="est">
-                    {% for est in ests %}
-                    <option value="{{est}}">{{est}}</option>
-                    {% endfor %}
-                </select>
-                
-            <hr>
-            </div>
-            <button type="button" id="addPlant" name="addPlant" onclick="copiar_div(document.getElementById('planta_0'),document.getElementById('addPlant'))">+</button><br>
-            <input type="submit" value="Agregar Plantas"><br>
-        </form>
+            <select name="variedad" id="variedad">
+                {% for variedad in variedades %}
+                <option value="{{variedad['Nombre']}}">{{variedad["Nombre"]}}</option>
+                {% endfor %}
+            </select>
+            <label for="sube">Subespacio: </label>
+            
+            <select name="sube">
+                {% for esp in espacios if esp["Existe"] %}
+                    {% for sube in esp["Subespacios"] if sube["Existe"] and not sube["Clones"] %}
+                <option value="{{sube['ID']}}">{{esp["Nombre"]}} - {{sube["Nombre"]}}</option>
+                {% endfor %}
+                {% endfor %}
+            </select>
+
+            <select name="tam">
+                {% for tam in tams %}
+                <option value="{{tam}}">{{tam}}</option>
+                {% endfor %}
+            </select>
         
-	</body>
+            <select name="est">
+                {% for est in ests %}
+                <option value="{{est}}">{{est}}</option>
+                {% endfor %}
+            </select>
+            
+        <hr>
+        </div>
+        <button type="button" id="addPlant" name="addPlant" onclick="copiar_div(document.getElementById('planta_0'),document.getElementById('addPlant'))">+</button><br>
+        <input type="submit" value="Agregar Plantas"><br>
+    </form>
+    
+</body>
 </html>

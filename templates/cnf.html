@@ -1,242 +1,206 @@
 <!DOCTYPE html>
 <html>
-	<head>
-        {% if modo == 0 %}
-        <title>Configuracion</title>
-        <label>Configuracion</label>
-        {% endif %}
-        
-        {% if modo == 1 %}
-        <title>Configuracion Espacios</title>
-        <label>Configuracion Espacios</label>
-        {% endif %}
+<head>
+    <title>Configuración</title>
+    <link rel="stylesheet" type="text/css" href="static/css/config.css">
+</head>
+<body>
+    <button onclick="document.location='{{home}}'" class="button">Home</button>
+    <br><hr>
 
-        {% if modo == 2 %}
-        <title>Configuracion Variedades</title>
-        <label>Configuracion Variedades</label>
-        {% endif %}
+    {% if modo == 0 %}
+    <form method="POST">
+        <button type="submit" name="espb" value="1">Configurar Espacios</button><br>
+        <button type="submit" name="varb" value="1">Configurar Variedades</button><br>
+        <button type="submit" name="prodb" value="1">Configurar Productos</button><br>
+        <button type="submit" name="tamb" value="1">Configurar Tamaños de macetas</button><br>
+        <button type="submit" name="estb" value="1">Configurar Estadios</button><br>
+        <button type="submit" name="cloneb" value="1">Configurar Subespacios de clones</button><br>
+    </form>
+    {% endif %}
 
-        {% if modo == 3 %}
-        <title>Configuracion Productos</title>
-        <label>Configuracion Productos</label>
-        {% endif %}
-
-        {% if modo == 4 %}
-        <title>Configuracion Tamaños</title>
-        <label>Configuracion Tamaños</label>
-        {% endif %}
-
-        {% if modo == 5 %}
-        <title>Configuracion Estadios</title>
-        <label>Configuracion Estadios</label>
-        {% endif %}
-        
-        {% if modo == 6 %}
-        <title>Configuracion Clones</title>
-        <label>Configuracion Clones</label>
-        {% endif %}
-
-        <button onclick="document.location='{{home}}'">Home</button>
-        <br><hr>
-	</head>
-	<body>
-        <script src="static/script.js"></script>
-        
-        
-        {% if modo == 0 %}
-        <form method="POST">
-            <button type="submit" name="espb" value="1">Configurar Espacios</button><br>
-            <button type="submit" name="varb" value="1">Configurar Variedades</button><br>
-            <button type="submit" name="prodb" value="1">Configurar Productos</button><br>
-            <button type="submit" name="tamb" value="1">Configurar Tamaños de macetas</button><br>
-            <button type="submit" name="estb" value="1">Configurar Estadios</button><br>
-            <button type="submit" name="cloneb" value="1">Configurar Subespacios de clones</button><br>
-        </form>
-        {% endif %}
-
-        
-        {% if modo == 1 %}
-
-        {% if espacios %}
-        <form method="POST">
+    {% if modo == 1 %}
+    {% if espacios %}
+    <form method="POST">
         <label>Espacios Actuales</label><br>
         {% for esp in espacios if esp["Existe"] %}
-            <label>{{esp['Nombre']}}</label> <button type="submit" name="edit" value="{{esp['ID']}}">Edit</button><br>
+        <label>{{esp['Nombre']}}</label>
+        <button type="submit" name="edit" value="{{esp['ID']}}">Edit</button><br>
         {% endfor %}
-        </form>
-        
-        {% endif %}
-        
-        <hr>
-        <form method="POST">
-            <div id="espacio_0" name="espacio_0">
-                <label for="nombre">Nombre Espacio: </label><input type="text" name="nombre">
-            </div>
-            <button type="button" id="addEspacio" onclick="copiar_div(document.getElementById('espacio_0'),document.getElementById('addEspacio'))">+</button><br>
-            <input type="submit" name="esp" value="Agregar espacios"><br>
-        </form>
-        {% endif %}
+    </form>
+    {% endif %}
+    
+    <hr>
+    <form method="POST">
+        <div id="espacio_0" name="espacio_0">
+            <label for="nombre">Nombre Espacio: </label>
+            <input type="text" name="nombre">
+        </div>
+        <button type="button" id="addEspacio">+</button><br>
+        <input type="submit" name="esp" value="Agregar espacios"><br>
+    </form>
+    {% endif %}
 
-
-        {% if modo == 2 %}
-        <form method="POST">
+    {% if modo == 2 %}
+    <form method="POST">
         <div name="var_inf">
             <label>Variedades Actuales</label><br>
             {% for var in variedades %}
-                <label>{{var['Nombre']}}</label>
-                    {% if not var["Individuos"] %}
-                        <button type="submit" name="delVar" value="{{var['Nombre']}}">X</button>
-                    {% endif %}
-                    <br>
+            <label>{{var['Nombre']}}</label>
+            {% if not var["Individuos"] %}
+            <button type="submit" name="delVar" value="{{var['Nombre']}}">X</button>
+            {% endif %}
+            <br>
             {% endfor %}
         </div>
         <hr>
-        </form>
+    </form>
 
+    <form method="POST">
+        <div id="variedad_0" name="variedad_0">
+            <label for="nombre_v">Nombre Variedad: </label>
+            <input type="text" name="nombre_v">
+            <select name="col_v">
+                <option style="color: red;" value="red">rojo</option>
+                <option style="color: blue;" value="blue">azul</option>
+                <option style="color: yellow;" value="yellow">amarillo</option>
+                <option style="color: pink" value="pink">rosa</option>
+                <option style="color: grey" value="grey">gris</option>
+            </select>
+        </div>
+        <button type="button" id="addVar">+</button><br>
+        <input type="submit" name="var" value="Agregar variedades"><br>
+    </form>
+    {% endif %}
 
-        <form method="POST">
-            <div id="variedad_0" name="variedad_0">
-                <label for="nombre_v">Nombre Variedad: </label><input  type="text" name="nombre_v">
-                <select name="col_v">
-                    <option style="color: red;"  value="red">rojo</option>
-                    <option style="color: blue;" value="blue">azul</option>
-                    <option style="color: yellow;" value="yellow">amarillo</option>
-                    <option style="color: pink" value="pink">rosa</option>
-                    <option style="color: grey" value="grey">gris</option>
-                </select>
-            </div>
-            <button type="button" id="addVar" onclick="copiar_div(document.getElementById('variedad_0'),document.getElementById('addVar'))">+</button><br>
-            <input type="submit" name="var" value="Agregar variedades"><br>
-        </form>
-        {% endif %}
-    
-
-        {% if modo == 3 %}
-        
-        {% if prods_r %}
-        <form method="POST">
+    {% if modo == 3 %}
+    {% if prods_r %}
+    <form method="POST">
         <div name="prodr_inf">
-            <label>Productos de Riego/Pulverizacion Actuales</label><br>
+            <label>Productos de Riego/Pulverización Actuales</label><br>
             {% for prod in prods_r %}
-                <label>{{prod}}</label><button type="submit" name="delPR" value="{{prod}}">X</button><br>
+            <label>{{prod}}</label>
+            <button type="submit" name="delPR" value="{{prod}}">X</button><br>
             {% endfor %}
         </div>
         <br>
-        </form>
-        {% endif %}
+    </form>
+    {% endif %}
 
-        {% if prods_p %} 
-        <form method="POST">
+    {% if prods_p %}
+    <form method="POST">
         <div name="prodp_inf">
             <label>Productos de Tratamiento de Plagas Actuales</label><br>
             {% for prod in prods_p %}
-                <label>{{prod}}</label><button type="submit" name="delPP" value="{{prod}}">X</button><br>
+            <label>{{prod}}</label>
+            <button type="submit" name="delPP" value="{{prod}}">X</button><br>
             {% endfor %}
         </div>
         <br>
-        </form>
-        {% endif %}
+    </form>
+    {% endif %}
 
-        {% if prods_h %}
-        <form method="POST">
+    {% if prods_h %}
+    <form method="POST">
         <div name="prodh_inf">
             <label>Productos de Tratamiento de Hongos Actuales</label><br>
             {% for prod in prods_h %}
-                <label>{{prod}}</label><button type="submit" name="delPH" value="{{prod}}">X</button><br>
+            <label>{{prod}}</label>
+            <button type="submit" name="delPH" value="{{prod}}">X</button><br>
             {% endfor %}
         </div>
         <hr>
-        </form>
-        {% endif %}
+    </form>
+    {% endif %}
 
-        <form method="POST">
-            <div id="prod_0" name="prod_0">
-                <label for="nombre_p">Nombre Producto: </label><input  type="text" name="nombre_p">
-                <select name="tipo">
-                    <option name="trat_r">Riego/Pulverizacion</option>
-                    <option name="trat_p">Tratamiento Plagas</option>
-                    <option name="trat_h">Tratamiento Hongos</option>
-                </select>
-            </div>
-            <button type="button" id="addProd" onclick="copiar_div(document.getElementById('prod_0'),document.getElementById('addProd'))">+</button><br>
-            <input type="submit" name="prods" value="Agregar productos"><br>
-        </form> 
-        {% endif %}
+    <form method="POST">
+        <div id="prod_0" name="prod_0">
+            <label for="nombre_p">Nombre Producto: </label>
+            <input type="text" name="nombre_p">
+            <select name="tipo">
+                <option value="trat_r">Riego/Pulverización</option>
+                <option value="trat_p">Tratamiento Plagas</option>
+                <option value="trat_h">Tratamiento Hongos</option>
+            </select>
+        </div>
+        <button type="button" id="addProd">+</button><br>
+        <input type="submit" name="prods" value="Agregar productos"><br>
+    </form> 
+    {% endif %}
 
-        {% if modo == 4 %}
-        
-        {% if tams %}
-        <form method="POST">
+    {% if modo == 4 %}
+    {% if tams %}
+    <form method="POST">
         <div name="taminfo_inf">
             <label>Tamaños Actuales</label><br>
             {% for tam in tams %}
-                <label>{{tam}}</label><button type="submit" name="delT" value="{{tam}}">X</button><br>
+            <label>{{tam}}</label>
+            <button type="submit" name="delT" value="{{tam}}">X</button><br>
             {% endfor %}
         </div>
         <hr>
-        </form>
-        {% endif %}
-        
-        <label>Cargar los tamaños de menor a mayor</label>
-        <form method="POST">
-            <div id="tam_0">
-                <label>Tamaño: </label><input type="text" name="tam">
-            </div>
-            <button type="button" id="addTam" onclick="copiar_div(document.getElementById('tam_0'),document.getElementById('addTam'))">+</button><br>
-            <input type="submit" value="Agregar Tamaños"><br>
-        </form>
-        {% endif %}
-        
-        {% if modo == 5 %}
-        
-        {% if ests %}
-        <form method="POST">
+    </form>
+    {% endif %}
+    
+    <label>Cargar los tamaños de menor a mayor</label>
+    <form method="POST">
+        <div id="tam_0">
+            <label>Tamaño: </label>
+            <input type="text" name="tam">
+        </div>
+        <button type="button" id="addTam">+</button><br>
+        <input type="submit" value="Agregar Tamaños"><br>
+    </form>
+    {% endif %}
+
+    {% if modo == 5 %}
+    {% if ests %}
+    <form method="POST">
         <div name="estinfo_inf">
             <label>Estadios Actuales</label><br>
             {% for est in ests %}
-                <label>{{est}}</label><button type="submit" name="delE" value="{{est}}">X</button><br>
+            <label>{{est}}</label>
+            <button type="submit" name="delE" value="{{est}}">X</button><br>
             {% endfor %}
         </div>
         <hr>
-        </form>
-        {% endif %}
-        <label>No cargar el estadio "CLON" este se genera automaticamente al hacer un poda de esquejes y clonar las plantas seleccionadas</label><br>
-        <form method="POST">
-            <div id="est_0" name="tam_0">
-                <label>Estadio: </label><input type="text" name="est">
-            </div>
-            <button type="button" id="addEst" onclick="copiar_div(document.getElementById('est_0'),document.getElementById('addEst'))">+</button><br>
-            <input type="submit" name="ests" value="Agregar Estadios"><br>
-        </form>
-        {% endif %}
+    </form>
+    {% endif %}
+    <label>No cargar el estadio "CLON", este se genera automáticamente al hacer una poda de esquejes y clonar las plantas seleccionadas</label><br>
+    <form method="POST">
+        <div id="est_0" name="est_0">
+            <label>Estadio: </label>
+            <input type="text" name="est">
+        </div>
+        <button type="button" id="addEst">+</button><br>
+        <input type="submit" name="ests" value="Agregar Estadios"><br>
+    </form>
+    {% endif %}
 
-        
-        {% if modo == 6 %}
-            <form method="POST">
-            <select name="modo" hidden><option>{{modo}}</option></select>
-            {% for esp in espacios if esp["Existe"] %}
-                <div>
-                    <label>{{esp["Nombre"]}}</label>
-                    {% for sube in esp["Subespacios"] if sube["Existe"]%}
-                        <div>
-                            <label>{{sube["Nombre"]}}</label>
-                            <label>Contiene Clones</label>
- 
-                            {% if sube["Clones"] is sameas true %}
-                            <input type="checkbox" name="{{sube['ID']}}" checked>
-                            {% endif %}
- 
-                            {% if sube["Clones"] is sameas false %}
-                            <input type="checkbox" name="{{sube['ID']}}">
-                            {% endif %}
-                        
-                        </div><br>
-                    {% endfor %}
-                </div><hr>
+    {% if modo == 6 %}
+    <form method="POST">
+        <select name="modo" class="hidden"><option>{{modo}}</option></select>
+        {% for esp in espacios if esp["Existe"] %}
+        <div>
+            <label>{{esp["Nombre"]}}</label>
+            {% for sube in esp["Subespacios"] if sube["Existe"] %}
+            <div>
+                <label>{{sube["Nombre"]}}</label>
+                <label>Contiene Clones</label>
+
+                {% if sube["Clones"] is sameas true %}
+                <input type="checkbox" name="{{sube['ID']}}" checked>
+                {% endif %}
+
+                {% if sube["Clones"] is sameas false %}
+                <input type="checkbox" name="{{sube['ID']}}">
+                {% endif %}
+            </div><br>
             {% endfor %}
+        </div><hr>
+        {% endfor %}
         <button type="submit">Agregar espacios de clones</button>
-        </form>
-        {% endif %}
-            
-	</body>
+    </form>
+    {% endif %}
+</body>
 </html>

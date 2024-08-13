@@ -1,0 +1,143 @@
+/* static/css/home.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #121212; /* Fondo oscuro */
+    color: #e0e0e0; /* Texto claro */
+}
+
+
+
+.espacio, .subespacio {
+    border: 2px solid #333;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #1e1e1e;
+    display: flex;
+    flex-direction: column;
+}
+
+.espacio-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.subespacios {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.subespacio {
+    border: 2px solid #444;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #2a2a2a;
+    display: flex;
+    flex-direction: column;
+    width: 30%; /* Tamaño fijo para el subespacio */
+}
+
+.plantas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    text-align: center;
+    gap: 5px;
+}
+
+.planta {
+    border: 1px solid #555;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: #333;
+    display: flex;
+    align-items: center;
+    width: 110px; /* Tamaño fijo para la planta */
+    justify-content: space-between;
+    margin-top: 2px;
+}
+
+.planta-info {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    border-radius: 5px;
+    color: white;
+}
+
+/* Ajustes para mejorar la legibilidad del texto según el color de fondo */
+.planta-info[data-color="pink"] {
+    background-color: #FFC0CB; /* Rosa claro */
+    color: #121212; /* Texto oscuro para contraste */
+}
+
+.planta-info[data-color="yellow"] {
+    background-color: #FFFF00; /* Amarillo */
+    color: #121212; /* Texto oscuro para contraste */
+}
+
+input[type="checkbox"] {
+    margin-left: 5px;
+}
+
+/* Estilo para los botones */
+button[type="submit"], button {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 5px 2px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover, button:hover {
+    background-color: #45a049; /* Verde más oscuro */
+}
+
+select, input[type="submit"] {
+    background-color: #555;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+    margin: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+select:hover, input[type="submit"]:hover {
+    background-color: #666;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #333;
+    margin: 20px 0;
+}
+
+/* Estilo para los enlaces */
+a {
+    color: #4CAF50; /* Verde */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Estilo para mensajes flash */
+h3 {
+    color: #FFD700; /* Amarillo dorado */
+}

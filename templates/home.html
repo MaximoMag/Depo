@@ -1,67 +1,83 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Bienvenido {{user}}</title>
-        <label>Bienvenido {{user}}</label><br><hr>
-        {% with mes = get_flashed_messages() %}
-        {% if mes %}
-        <h3>{{mes[0]}}</h3><br>
-        {% endif %}
-        {% endwith %}
-    </head>
-    <body>
-        <label for="{{cant_plantas}}">Cantidad de plantas: {{cant_plantas}}</label>
-        <label for="{{clones}}">Clones enraizando: {{clones}}</label>
-        <script src="static/script.js"></script>
-        <hr>
-        <form method="POST">
-                {% for espacio in espacios if espacio["Existe"] %}
-                <div id="{{espacio['Nombre']}}">
-                    <label for="{{espacio['ID']}}">{{espacio["Nombre"]}} :</label>
-                    <input type="checkbox" id="{{espacio['ID']}}" name="{{espacio['ID']}}" 
-                    onclick="checkOtherBoxes(document.getElementById(`{{espacio['ID']}}`),document.getElementById(`{{espacio['Nombre']}}`).children)">                    
-                    <button type="submit" value="{{espacio['ID']}}" name="log">Añadir Bitacora {{espacio["Nombre"]}}</button>
-                    {% for sube in espacio['Subespacios'] if sube["Existe"] %}
-                        <div id="{{sube['Nombre']}}">
-                            <label for = "{{sube['ID']}}">{{sube["Nombre"]}}</label>
-                            <input type="checkbox" id= "{{sube['ID']}}" name = "{{sube['ID']}}"
-                            onclick="checkOtherBoxes(document.getElementById(`{{sube['ID']}}`),document.getElementById(`{{sube['Nombre']}}`).children)">
-                            <button type="submit" value="{{sube['ID']}}" name="log_s">Añadir Bitacora {{sube["Nombre"]}}</button>
-                            {% for planta in sube["Individuos"] if planta["Estadio"] != "Muerta" %}
-                                <br>    
-                                {% with var = planta["ID"][:planta["ID"].index("-")] %}                          
-                                    {% if colores[var] == "blue" or colores[var] == "red" or colores[var] == "grey" %} 
-                                    <span style="background-color: {{colores[var]}};"><label style="color: white">{{planta['ID']}}: {{planta['Tam']}}</label></span>
-                                    {% else %}    
-                                    <span style="background-color: {{colores[var]}};"><label style="color: black">{{planta['ID']}}: {{planta['Tam']}}</label></span>
-                                    {% endif %}
-                                    <input type="checkbox" id= "{{planta['ID']}}" name= "{{planta['ID']}}">
-                                {% endwith %}
-                            {% endfor %}
+<head>
+    <title>Bienvenido {{user}}</title>
+    <link rel="stylesheet" type="text/css" href="static/css/home.css">
+    <label>Bienvenido {{user}}</label><br><hr>
+    {% with mes = get_flashed_messages() %}
+    {% if mes %}
+    <h3>{{mes[0]}}</h3><br>
+    {% endif %}
+    {% endwith %}
+    <script src="static/script.js"></script>
+    <script>
+        function checkOtherBoxes(check, children) {
+            check.checked = !check.checked;
+            for (let a = 0; a < children.length; a++) {
+                if (children[a].type == "checkbox") {
+                    children[a].checked = !children[a].checked;
+                } else if (children[a].children.length > 0) {
+                    checkOtherBoxes(check, children[a].children);
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <label for="{{cant_plantas}}">Cantidad de plantas: {{cant_plantas}}</label>
+    <label for="{{clones}}">Clones enraizando: {{clones}}</label>
+    <hr>
+    <form method="POST">
+        {% for espacio in espacios if espacio["Existe"] %}
+        <div class="espacio" id="{{espacio['Nombre']}}">
+            <div class="espacio-header">
+                <label for="{{espacio['ID']}}">{{espacio["Nombre"]}} :</label>
+                <input type="checkbox" id="{{espacio['ID']}}" name="{{espacio['ID']}}" 
+                onclick="checkOtherBoxes(this, document.getElementById('{{espacio['Nombre']}}').querySelectorAll('input[type=checkbox]'))">                    
+                <button type="submit" value="{{espacio['ID']}}" name="log">Añadir Bitacora {{espacio["Nombre"]}}</button>
+            </div>
+            <div class="subespacios">
+                {% for sube in espacio['Subespacios'] if sube["Existe"] %}
+                <div class="subespacio" id="{{sube['Nombre']}}">
+                    <label for="{{sube['ID']}}">{{sube["Nombre"]}}</label>
+                    <input type="checkbox" id="{{sube['ID']}}" name="{{sube['ID']}}"
+                    onclick="checkOtherBoxes(this, document.getElementById('{{sube['Nombre']}}').querySelectorAll('input[type=checkbox]'))">
+                    <button type="submit" value="{{sube['ID']}}" name="log_s">Añadir Bitacora {{sube["Nombre"]}}</button>
+                    <div class="plantas">
+                        {% for planta in sube["Individuos"] if planta["Estadio"] != "Muerta" %}
+                        <div class="planta">
+                            {% with var = planta["ID"][:planta["ID"].index("-")] %}
+                                <span class="planta-info" style="background-color: {{colores[var]}}" data-color={{colores[var]}} >
+                                    <label>{{planta['ID']}}: {{planta['Tam']}}</label>
+                                </span>
+                                <input type="checkbox" id="{{planta['ID']}}" name="{{planta['ID']}}">
+                            {% endwith %}
                         </div>
-                        <hr>
                         {% endfor %}
-                </div><hr>
-                {% endfor %}
                     </div>
-            <select name="mode">
-                <option name="Riego">Riego</option>
-                <option name="Pulerizacion" >Pulverizacion</option>
-                <option name="Tratamiento Plagas">Tratamiento Plagas</option>
-                <option name="Tratamiento Hongos">Tratamiento Hongos</option>
-                <option name="Poda">Poda</option>
-                <option name="Transplante">Transplante</option>
-                <option name="Bitacora">Bitacora</option>
-                <option name="Modificar">Modificar</option>
-            </select>
-            <input type="submit" value="Registrar actividad">
-            <hr>
-            <button type="submit" name="bit_p">Ver Bitacora</button><br>
-        </form>
-            <button onclick="document.location='{{add_p}}'">Añadir planta</button><br>
-            <button onclick="document.location='{{config}}'">Configuracion</button><br>
-            <button onclick="document.location='{{hist_stock}}'">Historial stock</button><br>
-            <button onclick="document.location='{{hist_riego}}'">Historial riegos</button><br> 
-            <button onclick="document.location='{{check_vars}}'">Chequeo Variedades Clonadas</button><br> 
-    </body>
+                </div>
+                {% endfor %}
+            </div>
+        </div><hr>
+        {% endfor %}
+        <select name="mode">
+            <option value="Riego">Riego</option>
+            <option value="Pulerizacion">Pulverizacion</option>
+            <option value="Tratamiento Plagas">Tratamiento Plagas</option>
+            <option value="Tratamiento Hongos">Tratamiento Hongos</option>
+            <option value="Poda">Poda</option>
+            <option value="Transplante">Transplante</option>
+            <option value="Bitacora">Bitacora</option>
+            <option value="Modificar">Modificar</option>
+        </select>
+        <input type="submit" value="Registrar actividad">
+        <hr>
+        <button type="submit" name="bit_p">Ver Bitacora</button><br>
+    </form>
+    <button onclick="document.location='{{add_p}}'">Añadir planta</button><br>
+    <button onclick="document.location='{{config}}'">Configuracion</button><br>
+    <button onclick="document.location='{{hist_stock}}'">Historial stock</button><br>
+    <button onclick="document.location='{{hist_riego}}'">Historial riegos</button><br> 
+    <button onclick="document.location='{{check_vars}}'">Chequeo Variedades Clonadas</button><br> 
+</body>
 </html>

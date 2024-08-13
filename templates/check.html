@@ -1,122 +1,110 @@
 <!DOCTYPE html>
-<html>
-	<head>
-        {% if modo == 0 %}
-		    <title>Chequeo Stock</title>
-            <label>Chequeo Stock</label>
-        {% endif %}
-        {% if modo == 1%}
-            <title>Chequeo Riegos</title>
-            <label>Chequeo Riegos</label>
-        {% endif %}
-        <button onclick="document.location='{{home}}'">Home</button>
-        <br>
-        <hr>
-	</head>
-	<body>
-        <script src="static/script.js"></script>
-        {% if modo == 0 %}
-            <label>Stock ultimo mes</label><br>
+<html lang="es">
+<head>
+    {% if modo == 0 %}
+        <title>Chequeo Stock</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/chequeo_stock.css') }}">
+    {% endif %}
+    {% if modo == 1 %}
+        <title>Chequeo Riegos</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/chequeo_riegos.css') }}">
+    {% endif %}
+    <button onclick="document.location='{{home}}'" style="width: fit-content;">Home</button>
+</head>
+<body>
+    <script src="static/script.js"></script>
+    {% if modo == 0 %}
+    <h1>Historial de Stock</h1>
+        <section>
+            <h2>Stock último mes</h2>
             {% for key in ult_stock_g %}
-                <label>{{trans[key]}} : {{ult_stock_g[key]}}</label><br>
+                <p>{{trans[key]}} : {{ult_stock_g[key]}}</p>
             {% endfor %}
-        
-        {% set st = namespace(stock=ult_stock) %}
-        {% endif %}
+        </section>
+    {% endif %}
 
-        {% if modo == 1 %}
+    {% if modo == 1 %}
+    <h1>Historial Riegos</h1>
         {% for fecha in logs %}
-        <button onclick="hide_children(document.getElementsByName('{{fecha}}')[0])"><h3>{{fecha}}</h3></button><br>
-        <div name="{{fecha}}">            
+        <button onclick="toggleDetails('{{fecha}}')">
+            <h3>Fecha: {{fecha}}</h3> <span class="arrow">&#9660;</span>
+        </button>
+        <div name="{{fecha}}" class="details hidden">
             {% for log in logs[fecha] %}
-            <div>
-                {% if log["Log"]["ID"] == 0 %} <!--RIEGOS-->
-                <h3>Riego</h3><br>
-                {% endif %}
-
-                {% if log["Log"]["ID"] == 1 %} <!--PULVE-->
-                <h3>Pulverizacion</h3><br>
-                {% endif %}
-                
-                
-                {% if log["Log"]["ID"] <= 1 %} <!--EXTRAS-->
-                <label>Cantidad = {{log["Log"]["Cantidad"]}} L PH = {{log["Log"]["PH"]}} EC = {{log["Log"]["EC"]}} </label><br>
-                <label>Productos: </label>    
-                    {% for prod in log["Log"]["Prods"] %}
-                        <label>{{prod[0]}} - ML x L: {{prod[1]}}</label>
-                    {% endfor %} 
-                {% endif %}
-                
-                <br>
-                <label>Entrada añadida por: {{log["BY"]}}</label>                
-                <br>
-
-                <label> <!--PLANTAS-->
-                    Plantas Involucradas : 
+                <div>
+                    {% if log["Log"]["ID"] == 0 %} <!--RIEGOS-->
+                        <h3>Riego</h3>
+                    {% endif %}
+                    {% if log["Log"]["ID"] == 1 %} <!--PULVE-->
+                        <h3>Pulverización</h3>
+                    {% endif %}
+                    {% if log["Log"]["ID"] <= 1 %} <!--EXTRAS-->
+                        <p>Cantidad = {{log["Log"]["Cantidad"]}} L PH = {{log["Log"]["PH"]}} EC = {{log["Log"]["EC"]}}</p>
+                        <p>Productos:</p>
+                        {% for prod in log["Log"]["Prods"] %}
+                            <p>{{prod[0]}} - ML x L: {{prod[1]}}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <p>Entrada añadida por: {{log["BY"]}}</p>
+                    <p>Plantas Involucradas:</p>
                     {% for id in log["IDs"] %}
-                    <label>{{id}}</label>
+                        <p>{{id}}</p>
                     {% endfor %}
-                </label>
-            </div><br>
+                </div>
             {% endfor %}
         </div>
         <hr>
-        {% endfor %}
-        {% endif %}
+    {% endfor %}
+    {% endif %}
 
-        {% if modo == 0 %}
-        {% for fecha in logs %}
+    {% if modo == 0 %}
+    {% for fecha in logs %}
         <br>
-        <button onclick="hide_children(document.getElementsByName('{{fecha}}')[0])"><h3>{{fecha}}</h3></button><br>
-        <div name="{{fecha}}">
+        <button onclick="toggleDetails('{{fecha}}')">
+            <h3>{{fecha}}</h3> <span class="arrow">&#9660;</span>
+        </button>
+        <div name="{{fecha}}" class="details hidden">
             <select>
-                <option selected>Ver mas</option>
+                <option selected>Ver más</option>
                 {% for sube in logs[fecha][0] %}
-                <option>{{trans[sube]}} : {{logs[fecha][0][sube]}}</option>
+                    <option>{{trans[sube]}} : {{logs[fecha][0][sube]}}</option>
                 {% endfor %}
-            </select><br>
-
+            </select>
+            <br>
+            {% set st = namespace(stock=0) %}
             {% for log in logs[fecha][1] %}
                 <div>
-                {% if log["Log"]["ID"] == 8 %} <!--Muerte-->
-                <label>Plantas Muertas en {{trans[log["Log"]["Loc"]]}}</label><br>
-                    {% for id in log["IDs"] %}
-                        <label>{{id}}</label>
+                    {% if log["Log"]["ID"] == 8 %} <!--Muerte-->
+                        <p>Plantas Muertas en {{trans[log["Log"]["Loc"]]}}</p>
+                        {% for id in log["IDs"] %}
+                            <p>{{id}}</p>
+                        {% endfor %}
+                    {% endif %}
+                    {% if log["Log"]["ID"] == 9 %} <!--Vida-->
+                        <p>Plantas Añadidas a {{trans[log["Log"]["Loc"]]}}</p>
+                        {% for id in log["IDs"] %}
+                            <p>{{id}}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <p>Entrada añadida por: {{log["BY"]}}</p>
+                    {% set ns = namespace(cant=0) %}
+                    {% for p in log["IDs"] %}
+                        {% set ns.cant = ns.cant + 1 %}
                     {% endfor %}
-                {% endif %}
-                
-                {% if log["Log"]["ID"] == 9 %} <!--Vida-->
-                <label>Plantas Añadidas a {{trans[log["Log"]["Loc"]]}}</label><br>
-                    {% for id in log["IDs"] %}
-                        <label>{{id}}</label>
-                    {% endfor %}
-                {% endif %}
-                
-                <br>
-                <label>Entrada añadida por: {{log["BY"]}}</label>                
-                <br>
-                    
-                {% set ns = namespace(cant=0) %}
-                {% for p in log["IDs"] %}
-                    {% set ns.cant = ns.cant + 1 %}
-                {% endfor %}
-
-                {% if log["Log"]["ID"] == 9 %}
-                {% set st.stock = st.stock + ns.cant %}
-                <label>Stock = {{st.stock}}</label>
-                {% endif %}
-                
-                {% if log["Log"]["ID"] == 8 %}
-                {% set st.stock = st.stock - ns.cant %}
-                <label>Stock = {{st.stock}}</label>
-                {% endif %}
-                </div><br>
+                    {% if log["Log"]["ID"] == 9 %}
+                        {% set st.stock = st.stock + ns.cant %}
+                        <p>Stock = {{st.stock}}</p>
+                    {% endif %}
+                    {% if log["Log"]["ID"] == 8 %}
+                        {% set st.stock = st.stock - ns.cant %}
+                        <p>Stock = {{st.stock}}</p>
+                    {% endif %}
+                </div>
             {% endfor %}
-
         </div>
         <hr>
-        {% endfor %}
-        {% endif %}
-        
-	</body>
+    {% endfor %}
+{% endif %}
+
+</body>
 </html>
